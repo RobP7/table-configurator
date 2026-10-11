@@ -85,7 +85,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .join("&");
   const computedHmac = crypto.createHmac("sha256", clientSecret).update(message).digest("hex");
   if (computedHmac !== hmac) {
-    res.status(400).send(htmlPage("<p>HMAC verification failed — this request may not be from Shopify.</p>"));
+    res.status(400).send(
+      htmlPage(`
+        <p>HMAC verification failed — the secret Vercel is using doesn't match what Shopify signed with.</p>
+        <p>This usually means SHOPIFY_CLIENT_SECRET in Vercel is stale (e.g. you rotated the secret in Shopify
+        but didn't update Vercel with the new value, or there's a copy-paste mismatch).</p>
+        <p>Diagnostic (safe to share, not the secret itself): the secret currently loaded is
+        <strong>${clientSecret.length}</strong> characters long. Compare that to the length of the current
+        Client secret shown on the app's Credentials page in dev.shopify.com.</p>
+      `)
+    );
     return;
   }
 
