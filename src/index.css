@@ -1,0 +1,36 @@
+:root {
+  --text: #6f6e68;
+  --text-h: #1e1c19;
+  --bg: #ece8e2;
+  --panel-bg: #f6f4f0;
+  --border: #ddd8cf;
+  --accent: #7d8066;
+  --accent-soft: #e7e6dc;
+  --serif: "Playfair Display", "Georgia", serif;
+  --sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+
+  font: 15px/1.5 var(--sans);
+  color-scheme: light;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--serif);
+  font-weight: 500;
+  color: var(--text-h);
+}
