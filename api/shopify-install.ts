@@ -24,8 +24,8 @@ interface VercelResponse {
 }
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
-  const storeDomain = process.env.SHOPIFY_STORE_DOMAIN;
-  const clientId = process.env.SHOPIFY_CLIENT_ID;
+  const storeDomain = process.env.SHOPIFY_STORE_DOMAIN?.trim();
+  const clientId = process.env.SHOPIFY_CLIENT_ID?.trim();
   if (!storeDomain || !clientId) {
     res.status(500).send("Missing SHOPIFY_STORE_DOMAIN or SHOPIFY_CLIENT_ID in Vercel env vars.");
     return;

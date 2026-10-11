@@ -40,9 +40,9 @@ function getParam(v: string | string[] | undefined): string | undefined {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Content-Type", "text/html");
 
-  const storeDomain = process.env.SHOPIFY_STORE_DOMAIN;
-  const clientId = process.env.SHOPIFY_CLIENT_ID;
-  const clientSecret = process.env.SHOPIFY_CLIENT_SECRET;
+  const storeDomain = process.env.SHOPIFY_STORE_DOMAIN?.trim();
+  const clientId = process.env.SHOPIFY_CLIENT_ID?.trim();
+  const clientSecret = process.env.SHOPIFY_CLIENT_SECRET?.trim();
   if (!storeDomain || !clientId || !clientSecret) {
     res.status(500).send(htmlPage("<p>Missing SHOPIFY_STORE_DOMAIN, SHOPIFY_CLIENT_ID or SHOPIFY_CLIENT_SECRET in Vercel env vars.</p>"));
     return;
