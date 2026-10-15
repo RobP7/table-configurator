@@ -1,4 +1,4 @@
-import { SHAPES } from "./_catalog";
+import { SHAPES } from "./catalog";
 
 interface VercelResponse {
   status: (code: number) => VercelResponse;
