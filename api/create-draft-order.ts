@@ -238,10 +238,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const storeDomain = process.env.SHOPIFY_STORE_DOMAIN;
-  const adminToken = process.env.SHOPIFY_ADMIN_API_TOKEN;
+  const storeDomain = process.env.SHOPIFY_STORE_DOMAIN?.trim();
+  const adminToken = process.env.SHOPIFY_ADMIN_API_TOKEN?.trim();
   if (!storeDomain || !adminToken) {
-    res.status(500).json({ error: "Server is not configured (missing Shopify credentials)" });
+    const missing = [
+      !storeDomain && "SHOPIFY_STORE_DOMAIN",
+      !adminToken && "SHOPIFY_ADMIN_API_TOKEN",
+    ].filter(Boolean);
+    res.status(500).json({
+      error: "Server is not configured (missing Shopify credentials)",
+      missing,
+    });
     return;
   }
 
