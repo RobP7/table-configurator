@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { CURRENCY } from "../config/options";
 
 interface OptionCardProps {
   label: string;
@@ -8,7 +7,6 @@ interface OptionCardProps {
   icon?: ReactNode;
   iconColor?: string;
   image?: string;
-  priceModifier: number;
   selected: boolean;
   onSelect: () => void;
 }
@@ -20,7 +18,6 @@ export function OptionCard({
   icon,
   iconColor,
   image,
-  priceModifier,
   selected,
   onSelect,
 }: OptionCardProps) {
@@ -47,9 +44,6 @@ export function OptionCard({
       <span className="option-card__body">
         <span className="option-card__label">{label}</span>
         {description && <span className="option-card__desc">{description}</span>}
-      </span>
-      <span className="option-card__price">
-        {priceModifier === 0 ? "Included" : `+${CURRENCY}${priceModifier}`}
       </span>
     </button>
   );

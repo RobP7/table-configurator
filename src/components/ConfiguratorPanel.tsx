@@ -119,7 +119,6 @@ export function ConfiguratorPanel() {
                 key={s.id}
                 label={s.label}
                 icon={<ShapeIcon shapeId={s.id} />}
-                priceModifier={s.basePrice - SHAPES[0].basePrice}
                 selected={s.id === shapeId}
                 onSelect={() => setShape(s.id)}
               />
@@ -137,7 +136,6 @@ export function ConfiguratorPanel() {
                     label={r.label}
                     description={r.description}
                     image={r.image}
-                    priceModifier={0}
                     selected={r.id === topRangeId}
                     onSelect={() => setTopRange(r.id)}
                   />
@@ -151,7 +149,6 @@ export function ConfiguratorPanel() {
                   <OptionCard
                     key={s.id}
                     label={s.label}
-                    priceModifier={s.priceModifier}
                     selected={s.id === sizeId}
                     onSelect={() => setSize(s.id)}
                   />
@@ -167,7 +164,6 @@ export function ConfiguratorPanel() {
                     label={c.label}
                     color={c.color}
                     image={c.image}
-                    priceModifier={c.priceModifier}
                     selected={c.id === topColorId}
                     onSelect={() => setTopColor(c.id)}
                   />
@@ -192,7 +188,6 @@ export function ConfiguratorPanel() {
                         label={l.label}
                         icon={<LegStyleIcon renderStyle={l.renderStyle} />}
                         image={l.image}
-                        priceModifier={l.priceModifier}
                         selected={l.id === legStyleId}
                         onSelect={() => setLegStyle(l.id)}
                       />
@@ -212,7 +207,6 @@ export function ConfiguratorPanel() {
                         icon={<LegStyleIcon renderStyle={l.renderStyle} />}
                         iconColor={WOOD_ICON_COLOR}
                         image={l.image}
-                        priceModifier={l.priceModifier}
                         selected={l.id === legStyleId}
                         onSelect={() => setLegStyle(l.id)}
                       />
@@ -229,7 +223,6 @@ export function ConfiguratorPanel() {
                     key={l.id}
                     label={l.label}
                     swatchColor={l.color}
-                    priceModifier={l.priceModifier}
                     selected={l.id === legFinishId}
                     onSelect={() => setLegFinish(l.id)}
                   />

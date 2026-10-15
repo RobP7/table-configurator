@@ -1,22 +1,12 @@
-import { CURRENCY } from "../config/options";
-
 interface SwatchOptionProps {
   label: string;
   color: string;
   image?: string;
-  priceModifier: number;
   selected: boolean;
   onSelect: () => void;
 }
 
-export function SwatchOption({
-  label,
-  color,
-  image,
-  priceModifier,
-  selected,
-  onSelect,
-}: SwatchOptionProps) {
+export function SwatchOption({ label, color, image, selected, onSelect }: SwatchOptionProps) {
   return (
     <button
       type="button"
@@ -32,12 +22,6 @@ export function SwatchOption({
         <span className="swatch-option__circle" style={{ backgroundColor: color }} />
       )}
       <span className="swatch-option__label">{label}</span>
-      {priceModifier !== 0 && (
-        <span className="swatch-option__price">
-          +{CURRENCY}
-          {priceModifier}
-        </span>
-      )}
     </button>
   );
 }
