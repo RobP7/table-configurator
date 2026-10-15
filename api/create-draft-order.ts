@@ -22,7 +22,7 @@ import {
   TOP_COLORS,
   LEG_STYLES,
   LEG_FINISHES,
-} from "../src/config/options";
+} from "./_catalog";
 
 interface OrderRequestBody {
   shapeId?: string;

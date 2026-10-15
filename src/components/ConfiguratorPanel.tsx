@@ -64,7 +64,10 @@ export function ConfiguratorPanel() {
       if (!response.ok || !data.checkoutUrl) {
         throw new Error(data.error || "Checkout failed — please try again.");
       }
-      window.location.href = data.checkoutUrl;
+      // Navigate the top-level window, not this iframe — Shopify's checkout
+      // pages refuse to render inside a frame (anti-clickjacking), so
+      // redirecting the iframe itself would silently fail when embedded.
+      (window.top ?? window).location.href = data.checkoutUrl;
     } catch (err) {
       setCheckoutStatus("error");
       setCheckoutError(err instanceof Error ? err.message : "Checkout failed — please try again.");
