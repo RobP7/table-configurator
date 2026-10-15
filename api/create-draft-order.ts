@@ -14,15 +14,159 @@
 //   SHOPIFY_ADMIN_API_TOKEN  Admin API access token with write_draft_orders scope
 //   ALLOWED_ORIGIN           (optional) storefront origin to allow via CORS,
 //                            e.g. "https://your-store.myshopify.com" — defaults to "*"
+//
+// The catalog data below is duplicated from src/config/options.ts rather
+// than imported. This project's Vercel deployment does not bundle/trace
+// ANY local file import between /api functions — even a one-line sibling
+// import causes every invocation to fail with FUNCTION_INVOCATION_FAILED
+// before the handler runs (confirmed experimentally: a bare OPTIONS request
+// crashed, and a diagnostic function importing a single trivial constant
+// from a sibling file crashed the same way). Each /api file must be fully
+// self-contained. Keep this data in sync with src/config/options.ts by hand
+// whenever products/prices change.
 
-import {
-  SHAPES,
-  SIZES,
-  TOP_RANGES,
-  TOP_COLORS,
-  LEG_STYLES,
-  LEG_FINISHES,
-} from "./catalog";
+type ShapeId = "rectangular" | "oval" | "round";
+type MaterialId = "steel" | "oak";
+
+interface SizeOption {
+  id: string;
+  label: string;
+  shapeId: ShapeId;
+  priceModifier: number;
+}
+
+interface TopRangeOption {
+  id: string;
+  label: string;
+  shapeId: ShapeId;
+}
+
+interface TopColorOption {
+  id: string;
+  label: string;
+  priceModifier: number;
+  compatibleRanges: string[];
+}
+
+interface LegStyleOption {
+  id: string;
+  label: string;
+  material: MaterialId;
+  compatibleShapes: ShapeId[];
+  compatibleSizes?: string[];
+  compatibleFinishes?: string[];
+  priceModifier: number;
+}
+
+interface LegFinishOption {
+  id: string;
+  label: string;
+  material: MaterialId;
+  priceModifier: number;
+}
+
+interface ShapeOption {
+  id: ShapeId;
+  label: string;
+  basePrice: number;
+}
+
+const SHAPES: ShapeOption[] = [
+  { id: "rectangular", label: "Rectangular", basePrice: 899 },
+  { id: "oval", label: "Oval", basePrice: 999 },
+  { id: "round", label: "Round", basePrice: 849 },
+];
+
+const SIZES: SizeOption[] = [
+  { id: "rect-160x90", label: "160 x 90 cm", shapeId: "rectangular", priceModifier: 0 },
+  { id: "rect-180x90", label: "180 x 90 cm", shapeId: "rectangular", priceModifier: 40 },
+  { id: "rect-200x100", label: "200 x 100 cm", shapeId: "rectangular", priceModifier: 90 },
+  { id: "rect-220x100", label: "220 x 100 cm", shapeId: "rectangular", priceModifier: 140 },
+  { id: "rect-240x100", label: "240 x 100 cm", shapeId: "rectangular", priceModifier: 190 },
+  { id: "rect-260x110", label: "260 x 110 cm", shapeId: "rectangular", priceModifier: 240 },
+  { id: "rect-280x110", label: "280 x 110 cm", shapeId: "rectangular", priceModifier: 290 },
+  { id: "rect-300x110", label: "300 x 110 cm", shapeId: "rectangular", priceModifier: 340 },
+
+  { id: "oval-130x70", label: "130 x 70 cm", shapeId: "oval", priceModifier: 0 },
+  { id: "oval-200x100", label: "200 x 100 cm", shapeId: "oval", priceModifier: 120 },
+  { id: "oval-200x110", label: "200 x 110 cm", shapeId: "oval", priceModifier: 140 },
+  { id: "oval-220x110", label: "220 x 110 cm", shapeId: "oval", priceModifier: 170 },
+  { id: "oval-240x100", label: "240 x 100 cm", shapeId: "oval", priceModifier: 190 },
+  { id: "oval-240x110", label: "240 x 110 cm", shapeId: "oval", priceModifier: 210 },
+  { id: "oval-260x120", label: "260 x 120 cm", shapeId: "oval", priceModifier: 250 },
+  { id: "oval-280x120", label: "280 x 120 cm", shapeId: "oval", priceModifier: 290 },
+  { id: "oval-300x120", label: "300 x 120 cm", shapeId: "oval", priceModifier: 330 },
+
+  { id: "round-100", label: "Ø 100 cm", shapeId: "round", priceModifier: 500 },
+  { id: "round-110", label: "Ø 110 cm", shapeId: "round", priceModifier: 746 },
+  { id: "round-120", label: "Ø 120 cm", shapeId: "round", priceModifier: 846 },
+];
+
+const TOP_RANGES: TopRangeOption[] = [
+  { id: "the-mynd", label: "The Mynd", shapeId: "round" },
+];
+
+const TOP_COLORS: TopColorOption[] = [
+  { id: "mynd-pure", label: "Pure", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-natural", label: "Natural", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-charcoal", label: "Charcoal", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-white-5", label: "White 5%", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-chocolate", label: "Chocolate", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-dunes", label: "Dunes", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-shell-grey", label: "Shell Grey", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-macchiato", label: "Macchiato", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-affogato", label: "Affogato", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-almond", label: "Almond", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-arabica", label: "Arabica", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-ash-grey", label: "Ash Grey", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-black", label: "Black", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-bourbon", label: "Bourbon", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-castle-brown", label: "Castle Brown", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-cortado", label: "Cortado", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-cocoa", label: "Cocoa", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-cotton-white", label: "Cotton White", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-dark-oak", label: "Dark Oak", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-dark-roast", label: "Dark Roast", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-dulce", label: "Dulce", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-fern", label: "Fern", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-golden-hour", label: "Golden Hour", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-hazelnut", label: "Hazelnut", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-honey", label: "Honey", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-light-roast", label: "Light Roast", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-linen", label: "Linen", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-midnight-sky", label: "Midnight Sky", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-mist", label: "Mist", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-mist-5", label: "Mist 5%", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-mocha", label: "Mocha", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-oyster", label: "Oyster", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-red-velvet", label: "Red Velvet", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-smoke", label: "Smoke", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-smoke-5", label: "Smoke 5%", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-super-white", label: "Super White", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-vanilla", label: "Vanilla", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-vienna", label: "Vienna", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-walnut", label: "Walnut", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-white", label: "White", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+];
+
+const LEG_STYLES: LegStyleOption[] = [
+  {
+    id: "mynd-pedestal",
+    label: "The Mynd Pedestal",
+    material: "steel",
+    compatibleShapes: ["round"],
+    compatibleFinishes: ["steel-black", "steel-white"],
+    priceModifier: 0,
+  },
+];
+
+const LEG_FINISHES: LegFinishOption[] = [
+  { id: "steel-black", label: "Matte Black Steel", material: "steel", priceModifier: 0 },
+  { id: "steel-white", label: "Matte White Steel", material: "steel", priceModifier: 0 },
+  { id: "steel-brass", label: "Brushed Brass", material: "steel", priceModifier: 70 },
+  { id: "wood-oak", label: "Natural Oak (matching top)", material: "oak", priceModifier: 0 },
+  { id: "wood-black", label: "Black Stained Oak", material: "oak", priceModifier: 40 },
+];
 
 interface OrderRequestBody {
   shapeId?: string;
