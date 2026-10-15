@@ -222,6 +222,54 @@ function TopSurfacePhoto({
   );
 }
 
+// Wraps the same finish photo around the round/oval top's vertical edge, so
+// the rim reads as the same wood instead of a flat fallback color. Scoped to
+// round/oval (the only shapes with a real textured product so far) — a
+// rectangular edge would need 4 separate flat bands instead of one wrap.
+function EdgeBand({
+  shapeId,
+  length,
+  width,
+  thickness,
+  y,
+  roughness,
+  metalness,
+  image,
+}: {
+  shapeId: "round" | "oval";
+  length: number;
+  width: number;
+  thickness: number;
+  y: number;
+  roughness: number;
+  metalness: number;
+  image: string;
+}) {
+  const texture = useTexture(image);
+  const radius = width / 2;
+  const scaleX = shapeId === "oval" ? length / width : 1;
+  const circumference = Math.PI * width;
+
+  useEffect(() => {
+    texture.colorSpace = SRGBColorSpace;
+    texture.wrapS = RepeatWrapping;
+    texture.wrapT = RepeatWrapping;
+    // Repeat the (roughly square) swatch photo around the rim so each tile
+    // stays close to square instead of smearing into one giant stretch.
+    texture.repeat.set(Math.max(circumference / (thickness * 6), 4), 1);
+    texture.needsUpdate = true;
+  }, [texture, circumference, thickness]);
+
+  return (
+    <mesh position={[0, y, 0]} scale={[scaleX, 1, 1]} castShadow receiveShadow>
+      {/* radius nudged out 0.2% so the band sits just outside the solid
+          slab's own side face instead of z-fighting with it */}
+      <cylinderGeometry args={[radius * 1.002, radius * 1.002, thickness, 64, 1, true]} />
+      <meshStandardMaterial map={texture} roughness={roughness} metalness={metalness} side={DoubleSide} />
+    </mesh>
+  );
+}
+
 export function Tabletop({
   shapeId,
   edgeStyle,
@@ -265,6 +313,7 @@ export function Tabletop({
 
   const geometry = shapeId === "rectangular" ? rectGeometry : roundGeometry;
   const topSurfaceY = useMemo(() => y + thickness / 2 + 0.0015, [y, thickness]);
+  const bottomSurfaceY = useMemo(() => y - thickness / 2 - 0.0015, [y, thickness]);
 
   return (
     <group>
@@ -272,14 +321,36 @@ export function Tabletop({
         {material}
       </mesh>
       {image && (
-        <TopSurfacePhoto
-          shapeId={shapeId}
-          edgeStyle={edgeStyle}
-          length={length}
-          width={width}
-          y={topSurfaceY}
-          image={image}
-        />
+        <>
+          <TopSurfacePhoto
+            shapeId={shapeId}
+            edgeStyle={edgeStyle}
+            length={length}
+            width={width}
+            y={topSurfaceY}
+            image={image}
+          />
+          <TopSurfacePhoto
+            shapeId={shapeId}
+            edgeStyle={edgeStyle}
+            length={length}
+            width={width}
+            y={bottomSurfaceY}
+            image={image}
+          />
+          {shapeId !== "rectangular" && (
+            <EdgeBand
+              shapeId={shapeId}
+              length={length}
+              width={width}
+              thickness={thickness}
+              y={y}
+              roughness={roughness}
+              metalness={metalness}
+              image={image}
+            />
+          )}
+        </>
       )}
     </group>
   );
