@@ -49,6 +49,12 @@ export interface TopRangeOption {
   // Real photos of the actual product, keyed by LEG_FINISHES id, shown in
   // the main viewer instead of a 3D render when available for this range.
   heroImages?: Record<string, string>;
+  // A set of real uploaded photos of the actual product from different
+  // angles, shown as a clickable gallery instead of any 3D render. Used
+  // when the procedural geometry can't be trusted to match the real
+  // product closely enough — the photos are the source of truth here, not
+  // an approximation of them.
+  photoGallery?: string[];
   // Shown under the Size step when this range's catalog sizes have a
   // largest-available cap but bigger bespoke orders are still possible.
   bespokeSizeNote?: string;
@@ -183,6 +189,14 @@ export const TOP_RANGES: TopRangeOption[] = [
     edgeStyle: "tree",
     image: "/tops/the-caradoc.jpg",
     bespokeSizeNote: "Need something longer than 280cm? Larger bespoke sizes are available on request — get in touch.",
+    photoGallery: [
+      "/caradoc-real/angle-1.jpg",
+      "/caradoc-real/angle-2.jpg",
+      "/caradoc-real/angle-3.jpg",
+      "/caradoc-real/angle-4.jpg",
+      "/caradoc-real/angle-5.jpg",
+      "/caradoc-real/angle-6.jpg",
+    ],
   },
 ];
 

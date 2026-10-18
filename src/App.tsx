@@ -1,11 +1,14 @@
 import { Scene } from "./three/Scene";
 import { ConfiguratorPanel } from "./components/ConfiguratorPanel";
+import { RealPhotoGallery } from "./components/RealPhotoGallery";
 import { useConfigStore, usePrice } from "./store/useConfigStore";
-import { CURRENCY } from "./config/options";
+import { CURRENCY, TOP_RANGES } from "./config/options";
 import "./App.css";
 
 function App() {
   const hasProduct = useConfigStore((s) => !!s.topRangeId);
+  const topRangeId = useConfigStore((s) => s.topRangeId);
+  const topRange = TOP_RANGES.find((r) => r.id === topRangeId);
   const { total } = usePrice();
 
   return (
@@ -14,8 +17,14 @@ function App() {
         {hasProduct ? (
           <>
             <div className="app__canvas">
-              <Scene />
-              <div className="app__hint">Drag to rotate · Scroll to zoom</div>
+              {topRange?.photoGallery ? (
+                <RealPhotoGallery images={topRange.photoGallery} label={topRange.label} />
+              ) : (
+                <>
+                  <Scene />
+                  <div className="app__hint">Drag to rotate · Scroll to zoom</div>
+                </>
+              )}
             </div>
             {total !== null && (
               <div className="app__total">
