@@ -104,6 +104,7 @@ const SIZES: SizeOption[] = [
 
 const TOP_RANGES: TopRangeOption[] = [
   { id: "the-mynd", label: "The Mynd", shapeId: "round" },
+  { id: "the-caradoc", label: "The Caradoc - Live Edge", shapeId: "rectangular" },
 ];
 
 const TOP_COLORS: TopColorOption[] = [
@@ -147,6 +148,7 @@ const TOP_COLORS: TopColorOption[] = [
   { id: "mynd-vienna", label: "Vienna", priceModifier: 0, compatibleRanges: ["the-mynd"] },
   { id: "mynd-walnut", label: "Walnut", priceModifier: 0, compatibleRanges: ["the-mynd"] },
   { id: "mynd-white", label: "White", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "caradoc-natural", label: "Natural Oak", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
 ];
 
 const LEG_STYLES: LegStyleOption[] = [
@@ -158,12 +160,21 @@ const LEG_STYLES: LegStyleOption[] = [
     compatibleFinishes: ["steel-black", "steel-white"],
     priceModifier: 0,
   },
+  {
+    id: "caradoc-triple-x",
+    label: "Triple X-Base",
+    material: "steel",
+    compatibleShapes: ["rectangular"],
+    compatibleFinishes: ["steel-bronze-patina"],
+    priceModifier: 0,
+  },
 ];
 
 const LEG_FINISHES: LegFinishOption[] = [
   { id: "steel-black", label: "Matte Black Steel", material: "steel", priceModifier: 0 },
   { id: "steel-white", label: "Matte White Steel", material: "steel", priceModifier: 0 },
   { id: "steel-brass", label: "Brushed Brass", material: "steel", priceModifier: 70 },
+  { id: "steel-bronze-patina", label: "Aged Bronze Steel", material: "steel", priceModifier: 0 },
   { id: "wood-oak", label: "Natural Oak (matching top)", material: "oak", priceModifier: 0 },
   { id: "wood-black", label: "Black Stained Oak", material: "oak", priceModifier: 40 },
 ];

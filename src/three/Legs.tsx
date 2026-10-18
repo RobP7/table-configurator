@@ -295,6 +295,34 @@ export function Legs({
 
   const columnRadius = 0.045;
 
+  if (renderStyle === "tripleX") {
+    // Three X-crosses standing on one shared steel base plate, centered
+    // under the table rather than at the two ends (unlike "xframe", which
+    // is two separate X legs with no connecting plate).
+    const barRadius = 0.02;
+    const plateThickness = 0.02;
+    const xSpan = Math.min(halfL * 0.9, halfL - 0.05);
+    const xPositions = [-xSpan * 0.55, 0, xSpan * 0.55];
+    const footZ = Math.min(halfW * 0.8, halfW - 0.05);
+    const plateLength = xSpan * 1.25;
+    const plateWidth = footZ * 2 * 1.05;
+
+    return (
+      <group>
+        <mesh position={[0, plateThickness / 2, 0]} castShadow receiveShadow>
+          <boxGeometry args={[plateLength, plateThickness, plateWidth]} />
+          <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
+        </mesh>
+        {xPositions.map((x, i) => (
+          <group key={i}>
+            <Beam x={x} y0={legHeight} z0={-footZ} y1={plateThickness} z1={footZ} radius={barRadius} {...mat} />
+            <Beam x={x} y0={legHeight} z0={footZ} y1={plateThickness} z1={-footZ} radius={barRadius} {...mat} />
+          </group>
+        ))}
+      </group>
+    );
+  }
+
   if (renderStyle === "pedestal") {
     // Fixed base size regardless of table diameter — a single pedestal base
     // supports a small size range on the real product, only the top resizes.

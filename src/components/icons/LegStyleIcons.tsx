@@ -86,6 +86,17 @@ function CrossBaseIcon() {
   );
 }
 
+function TripleXIcon() {
+  return (
+    <svg viewBox="0 0 56 56" width="28" height="28">
+      <path
+        d="M8 14 L22 44 M22 14 L8 44 M17 14 L31 44 M31 14 L17 44 M26 14 L40 44 M40 14 L26 44 M4 46 H44"
+        {...stroke}
+      />
+    </svg>
+  );
+}
+
 function SpiderIcon() {
   return (
     <svg viewBox="0 0 56 56" width="28" height="28">
@@ -108,6 +119,7 @@ export const LEG_ICONS: Record<LegRenderStyle, () => ReactElement> = {
   pedestal: PedestalIcon,
   crossbase: CrossBaseIcon,
   spider: SpiderIcon,
+  tripleX: TripleXIcon,
 };
 
 export function LegStyleIcon({ renderStyle }: { renderStyle: LegRenderStyle }) {

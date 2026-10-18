@@ -14,7 +14,8 @@ export type LegRenderStyle =
   | "trestle"
   | "pedestal"
   | "crossbase"
-  | "spider";
+  | "spider"
+  | "tripleX";
 
 export interface SizeOption {
   id: string;
@@ -146,9 +147,8 @@ export const SIZES: SizeOption[] = [
   { id: "round-120", label: "Ø 120 cm", shapeId: "round", length: 120, width: 120, priceModifier: 846 },
 ];
 
-// Ranges are shape-scoped product lines. Rectangular and oval have none yet
-// \u2014 they're added one at a time as real products come in. The Mynd is the
-// first real one.
+// Ranges are shape-scoped product lines, added one at a time as real
+// products come in.
 export const TOP_RANGES: TopRangeOption[] = [
   {
     id: "the-mynd",
@@ -161,6 +161,14 @@ export const TOP_RANGES: TopRangeOption[] = [
       "steel-black": "/tops/the-mynd-black.jpg",
       "steel-white": "/tops/the-mynd-white.jpg",
     },
+  },
+  {
+    id: "the-caradoc",
+    label: "The Caradoc - Live Edge",
+    shapeId: "rectangular",
+    description: "Rectangular live-edge oak dining table on a triple steel X-base",
+    edgeStyle: "tree",
+    image: "/tops/the-caradoc.jpg",
   },
 ];
 
@@ -209,6 +217,10 @@ export const TOP_COLORS: TopColorOption[] = [
   { id: "mynd-vienna", label: "Vienna", color: "#b98661", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-vienna.jpg", compatibleRanges: ["the-mynd"] },
   { id: "mynd-walnut", label: "Walnut", color: "#b58c54", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-walnut.jpg", compatibleRanges: ["the-mynd"] },
   { id: "mynd-white", label: "White", color: "#e3c6ad", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-white.jpg", compatibleRanges: ["the-mynd"] },
+
+  // --- The Caradoc — color sampled from the real product photo as an
+  // interim single finish; dedicated swatch photos to follow. ---
+  { id: "caradoc-natural", label: "Natural Oak", color: "#b98356", roughness: 0.6, metalness: 0, priceModifier: 0, compatibleRanges: ["the-caradoc"] },
 ];
 
 export const LEG_STYLES: LegStyleOption[] = [
@@ -221,6 +233,17 @@ export const LEG_STYLES: LegStyleOption[] = [
     compatibleShapes: ["round"],
     compatibleFinishes: ["steel-black", "steel-white"],
     priceModifier: 0,
+  },
+  {
+    id: "caradoc-triple-x",
+    label: "Triple X-Base",
+    description: "Three crossed steel X-legs on a shared base plate",
+    material: "steel",
+    renderStyle: "tripleX",
+    compatibleShapes: ["rectangular"],
+    compatibleFinishes: ["steel-bronze-patina"],
+    priceModifier: 0,
+    image: "/legs/caradoc-triple-x.jpg",
   },
 ];
 
@@ -251,6 +274,15 @@ export const LEG_FINISHES: LegFinishOption[] = [
     roughness: 0.35,
     metalness: 0.85,
     priceModifier: 70,
+  },
+  {
+    id: "steel-bronze-patina",
+    label: "Aged Bronze Steel",
+    material: "steel",
+    color: "#423b3a",
+    roughness: 0.45,
+    metalness: 0.6,
+    priceModifier: 0,
   },
   {
     id: "wood-oak",
