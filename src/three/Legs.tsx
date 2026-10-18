@@ -86,6 +86,7 @@ function Beam({
   roughness,
   metalness,
   image,
+  square,
 }: LegMaterialProps & {
   x: number;
   y0: number;
@@ -94,6 +95,9 @@ function Beam({
   z1: number;
   radius: number;
   image?: string;
+  // Flat-faced square box-section instead of a round tube — real steel
+  // table legs are very often box-section, not round bar.
+  square?: boolean;
 }) {
   const dy = y1 - y0;
   const dz = z1 - z0;
@@ -101,10 +105,15 @@ function Beam({
   const angle = Math.atan2(dz, dy);
   const midY = (y0 + y1) / 2;
   const midZ = (z0 + z1) / 2;
+  const side = radius * 1.8; // box side roughly matching the round beam's visual mass
 
   return (
     <mesh position={[x, midY, midZ]} rotation={[angle, 0, 0]} castShadow>
-      <cylinderGeometry args={[radius, radius, len, 12]} />
+      {square ? (
+        <boxGeometry args={[side, len, side]} />
+      ) : (
+        <cylinderGeometry args={[radius, radius, len, 12]} />
+      )}
       {image ? (
         <TexturedBeamMaterial image={image} len={len} radius={radius} roughness={roughness} metalness={metalness} />
       ) : (
@@ -365,12 +374,15 @@ export function Legs({
     // Three X-crosses standing on one shared steel base plate, centered
     // under the table rather than at the two ends (unlike "xframe", which
     // is two separate X legs with no connecting plate).
-    const barRadius = 0.02;
+    // Box side ~4.5cm (radius 0.025 * 1.8), plate sized from the real photos'
+    // measured proportions — the base plate spans roughly 2/3 of the table's
+    // length, not just the narrow footprint under the X-cluster.
+    const barRadius = 0.025;
     const plateThickness = 0.02;
     const xSpan = Math.min(halfL * 0.9, halfL - 0.05);
     const xPositions = [-xSpan * 0.55, 0, xSpan * 0.55];
     const footZ = Math.min(halfW * 0.8, halfW - 0.05);
-    const plateLength = xSpan * 1.25;
+    const plateLength = Math.min(length * 0.62, xSpan * 1.9);
     const plateWidth = footZ * 2 * 1.05;
 
     return (
@@ -391,8 +403,8 @@ export function Legs({
         </mesh>
         {xPositions.map((x, i) => (
           <group key={i}>
-            <Beam x={x} y0={legHeight} z0={-footZ} y1={plateThickness} z1={footZ} radius={barRadius} image={image} {...mat} />
-            <Beam x={x} y0={legHeight} z0={footZ} y1={plateThickness} z1={-footZ} radius={barRadius} image={image} {...mat} />
+            <Beam x={x} y0={legHeight} z0={-footZ} y1={plateThickness} z1={footZ} radius={barRadius} image={image} square {...mat} />
+            <Beam x={x} y0={legHeight} z0={footZ} y1={plateThickness} z1={-footZ} radius={barRadius} image={image} square {...mat} />
           </group>
         ))}
       </group>
