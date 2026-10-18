@@ -229,6 +229,13 @@
   padding: 0 28px;
 }
 
+.step-section__note {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
 .panel__coming-soon {
   padding: 0 28px;
 }

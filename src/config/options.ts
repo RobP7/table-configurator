@@ -24,6 +24,10 @@ export interface SizeOption {
   length: number; // cm (diameter for round tops)
   width: number; // cm (equals length for round tops)
   priceModifier: number; // placeholder — replace with real price list
+  // If set, restricts this size to only these TopRangeOption ids (within
+  // shapeId) — used once a shape has more than one range with different
+  // size spans. Omitted means compatible with every range of that shape.
+  compatibleRanges?: string[];
 }
 
 // Real edge/silhouette profile per series — drives which procedural 3D
@@ -45,6 +49,9 @@ export interface TopRangeOption {
   // Real photos of the actual product, keyed by LEG_FINISHES id, shown in
   // the main viewer instead of a 3D render when available for this range.
   heroImages?: Record<string, string>;
+  // Shown under the Size step when this range's catalog sizes have a
+  // largest-available cap but bigger bespoke orders are still possible.
+  bespokeSizeNote?: string;
 }
 
 export interface TopColorOption {
@@ -118,15 +125,17 @@ export const SHAPES: ShapeOption[] = [
 // Sizes are shape-scoped: a round top only ever offers diameters, an oval
 // top offers its own length x width range, etc. Filtered by shapeId in the UI.
 export const SIZES: SizeOption[] = [
-  // Rectangular
-  { id: "rect-160x90", label: "160 x 90 cm", shapeId: "rectangular", length: 160, width: 90, priceModifier: 0 },
-  { id: "rect-180x90", label: "180 x 90 cm", shapeId: "rectangular", length: 180, width: 90, priceModifier: 40 },
-  { id: "rect-200x100", label: "200 x 100 cm", shapeId: "rectangular", length: 200, width: 100, priceModifier: 90 },
-  { id: "rect-220x100", label: "220 x 100 cm", shapeId: "rectangular", length: 220, width: 100, priceModifier: 140 },
-  { id: "rect-240x100", label: "240 x 100 cm", shapeId: "rectangular", length: 240, width: 100, priceModifier: 190 },
-  { id: "rect-260x110", label: "260 x 110 cm", shapeId: "rectangular", length: 260, width: 110, priceModifier: 240 },
-  { id: "rect-280x110", label: "280 x 110 cm", shapeId: "rectangular", length: 280, width: 110, priceModifier: 290 },
-  { id: "rect-300x110", label: "300 x 110 cm", shapeId: "rectangular", length: 300, width: 110, priceModifier: 340 },
+  // The Caradoc — 160cm to 280cm. 180cm listed first since that's the
+  // exact size shown in the real reference photos (used as this range's
+  // default). Larger bespoke sizes beyond 280cm are handled via
+  // TOP_RANGES["the-caradoc"].bespokeSizeNote, not a catalog entry.
+  { id: "caradoc-180x100", label: "180 x 100 cm", shapeId: "rectangular", length: 180, width: 100, priceModifier: 40, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-160x100", label: "160 x 100 cm", shapeId: "rectangular", length: 160, width: 100, priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-200x100", label: "200 x 100 cm", shapeId: "rectangular", length: 200, width: 100, priceModifier: 90, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-220x100", label: "220 x 100 cm", shapeId: "rectangular", length: 220, width: 100, priceModifier: 140, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-240x100", label: "240 x 100 cm", shapeId: "rectangular", length: 240, width: 100, priceModifier: 190, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-260x100", label: "260 x 100 cm", shapeId: "rectangular", length: 260, width: 100, priceModifier: 240, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-280x100", label: "280 x 100 cm", shapeId: "rectangular", length: 280, width: 100, priceModifier: 290, compatibleRanges: ["the-caradoc"] },
 
   // Oval
   { id: "oval-130x70", label: "130 x 70 cm", shapeId: "oval", length: 130, width: 70, priceModifier: 0 },
@@ -169,6 +178,7 @@ export const TOP_RANGES: TopRangeOption[] = [
     description: "Rectangular live-edge oak dining table on a triple steel X-base",
     edgeStyle: "tree",
     image: "/tops/the-caradoc.jpg",
+    bespokeSizeNote: "Need something longer than 280cm? Larger bespoke sizes are available on request — get in touch.",
   },
 ];
 
@@ -218,9 +228,48 @@ export const TOP_COLORS: TopColorOption[] = [
   { id: "mynd-walnut", label: "Walnut", color: "#b58c54", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-walnut.jpg", compatibleRanges: ["the-mynd"] },
   { id: "mynd-white", label: "White", color: "#e3c6ad", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-white.jpg", compatibleRanges: ["the-mynd"] },
 
-  // --- The Caradoc — color sampled from the real product photo as an
-  // interim single finish; dedicated swatch photos to follow. ---
-  { id: "caradoc-natural", label: "Natural Oak", color: "#b98356", roughness: 0.6, metalness: 0, priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  // --- The Caradoc — 40 Rubio Monocoat Oil Plus 2C finish colors, cropped
+  // and color-sampled from the real "Knot & Grain Dining" reference sheets ---
+  { id: "caradoc-pure", label: "Pure", color: "#d8a576", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-pure.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-natural", label: "Natural", color: "#dcb18a", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-natural.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-charcoal", label: "Charcoal", color: "#6f5d50", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-charcoal.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-white-5", label: "White 5%", color: "#d9b69d", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-white-5.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-chocolate", label: "Chocolate", color: "#805641", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-chocolate.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-dunes", label: "Dunes", color: "#9d7a5e", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-dunes.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-shell-grey", label: "Shell Grey", color: "#9f7c62", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-shell-grey.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-macchiato", label: "Macchiato", color: "#c28b5a", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-macchiato.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-affogato", label: "Affogato", color: "#9a6a48", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-affogato.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-almond", label: "Almond", color: "#ba8057", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-almond.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-arabica", label: "Arabica", color: "#ac704b", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-arabica.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-ash-grey", label: "Ash Grey", color: "#947e6f", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-ash-grey.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-black", label: "Black", color: "#473c38", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-black.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-bourbon", label: "Bourbon", color: "#ae744a", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-bourbon.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-castle-brown", label: "Castle Brown", color: "#a1704e", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-castle-brown.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-cortado", label: "Cortado", color: "#9d6b4a", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-cortado.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-cocoa", label: "Cocoa", color: "#a06d4a", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-cocoa.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-cotton-white", label: "Cotton White", color: "#debc9c", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-cotton-white.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-dark-oak", label: "Dark Oak", color: "#865d42", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-dark-oak.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-dark-roast", label: "Dark Roast", color: "#775440", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-dark-roast.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-dulce", label: "Dulce", color: "#cf9a61", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-dulce.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-fern", label: "Fern", color: "#626752", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-fern.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-golden-hour", label: "Golden Hour", color: "#bf824d", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-golden-hour.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-hazelnut", label: "Hazelnut", color: "#b78055", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-hazelnut.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-honey", label: "Honey", color: "#c68952", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-honey.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-light-roast", label: "Light Roast", color: "#c78e5d", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-light-roast.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-mist", label: "Mist", color: "#ba9c86", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-mist.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-mist-5", label: "Mist 5%", color: "#cd9d73", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-mist-5.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-mocha", label: "Mocha", color: "#b88159", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-mocha.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-oyster", label: "Oyster", color: "#cbaa8d", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-oyster.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-red-velvet", label: "Red Velvet", color: "#974a41", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-red-velvet.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-smoke", label: "Smoke", color: "#c2a893", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-smoke.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-smoke-5", label: "Smoke 5%", color: "#d6b18f", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-smoke-5.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-super-white", label: "Super White", color: "#dcc4b0", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-super-white.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-vanilla", label: "Vanilla", color: "#dfbd9a", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-vanilla.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-vienna", label: "Vienna", color: "#b97a53", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-vienna.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-white", label: "White", color: "#d6baa6", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-white.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-linen", label: "Linen", color: "#d2aa84", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-linen.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-walnut", label: "Walnut", color: "#a17050", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-walnut.jpg", compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-midnight-sky", label: "Midnight Sky", color: "#435664", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-midnight-sky.jpg", compatibleRanges: ["the-caradoc"] },
 ];
 
 export const LEG_STYLES: LegStyleOption[] = [

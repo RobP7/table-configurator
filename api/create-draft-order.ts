@@ -33,6 +33,7 @@ interface SizeOption {
   label: string;
   shapeId: ShapeId;
   priceModifier: number;
+  compatibleRanges?: string[];
 }
 
 interface TopRangeOption {
@@ -78,14 +79,13 @@ const SHAPES: ShapeOption[] = [
 ];
 
 const SIZES: SizeOption[] = [
-  { id: "rect-160x90", label: "160 x 90 cm", shapeId: "rectangular", priceModifier: 0 },
-  { id: "rect-180x90", label: "180 x 90 cm", shapeId: "rectangular", priceModifier: 40 },
-  { id: "rect-200x100", label: "200 x 100 cm", shapeId: "rectangular", priceModifier: 90 },
-  { id: "rect-220x100", label: "220 x 100 cm", shapeId: "rectangular", priceModifier: 140 },
-  { id: "rect-240x100", label: "240 x 100 cm", shapeId: "rectangular", priceModifier: 190 },
-  { id: "rect-260x110", label: "260 x 110 cm", shapeId: "rectangular", priceModifier: 240 },
-  { id: "rect-280x110", label: "280 x 110 cm", shapeId: "rectangular", priceModifier: 290 },
-  { id: "rect-300x110", label: "300 x 110 cm", shapeId: "rectangular", priceModifier: 340 },
+  { id: "caradoc-180x100", label: "180 x 100 cm", shapeId: "rectangular", priceModifier: 40, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-160x100", label: "160 x 100 cm", shapeId: "rectangular", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-200x100", label: "200 x 100 cm", shapeId: "rectangular", priceModifier: 90, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-220x100", label: "220 x 100 cm", shapeId: "rectangular", priceModifier: 140, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-240x100", label: "240 x 100 cm", shapeId: "rectangular", priceModifier: 190, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-260x100", label: "260 x 100 cm", shapeId: "rectangular", priceModifier: 240, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-280x100", label: "280 x 100 cm", shapeId: "rectangular", priceModifier: 290, compatibleRanges: ["the-caradoc"] },
 
   { id: "oval-130x70", label: "130 x 70 cm", shapeId: "oval", priceModifier: 0 },
   { id: "oval-200x100", label: "200 x 100 cm", shapeId: "oval", priceModifier: 120 },
@@ -148,7 +148,46 @@ const TOP_COLORS: TopColorOption[] = [
   { id: "mynd-vienna", label: "Vienna", priceModifier: 0, compatibleRanges: ["the-mynd"] },
   { id: "mynd-walnut", label: "Walnut", priceModifier: 0, compatibleRanges: ["the-mynd"] },
   { id: "mynd-white", label: "White", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "caradoc-natural", label: "Natural Oak", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-pure", label: "Pure", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-natural", label: "Natural", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-charcoal", label: "Charcoal", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-white-5", label: "White 5%", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-chocolate", label: "Chocolate", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-dunes", label: "Dunes", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-shell-grey", label: "Shell Grey", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-macchiato", label: "Macchiato", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-affogato", label: "Affogato", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-almond", label: "Almond", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-arabica", label: "Arabica", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-ash-grey", label: "Ash Grey", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-black", label: "Black", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-bourbon", label: "Bourbon", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-castle-brown", label: "Castle Brown", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-cortado", label: "Cortado", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-cocoa", label: "Cocoa", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-cotton-white", label: "Cotton White", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-dark-oak", label: "Dark Oak", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-dark-roast", label: "Dark Roast", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-dulce", label: "Dulce", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-fern", label: "Fern", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-golden-hour", label: "Golden Hour", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-hazelnut", label: "Hazelnut", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-honey", label: "Honey", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-light-roast", label: "Light Roast", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-mist", label: "Mist", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-mist-5", label: "Mist 5%", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-mocha", label: "Mocha", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-oyster", label: "Oyster", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-red-velvet", label: "Red Velvet", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-smoke", label: "Smoke", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-smoke-5", label: "Smoke 5%", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-super-white", label: "Super White", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-vanilla", label: "Vanilla", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-vienna", label: "Vienna", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-white", label: "White", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-linen", label: "Linen", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-walnut", label: "Walnut", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-midnight-sky", label: "Midnight Sky", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
 ];
 
 const LEG_STYLES: LegStyleOption[] = [
@@ -215,6 +254,7 @@ function resolveConfig(body: OrderRequestBody) {
   // Basic consistency checks so a tampered/stale request can't slip through
   // with mismatched pieces (e.g. a round size with a rectangular-only leg).
   if (size.shapeId !== shape.id || topRange.shapeId !== shape.id) return null;
+  if (size.compatibleRanges && !size.compatibleRanges.includes(topRange.id)) return null;
   if (!topColor.compatibleRanges.includes(topRange.id)) return null;
   if (!legStyle.compatibleShapes.includes(shape.id)) return null;
   if (legStyle.compatibleSizes && !legStyle.compatibleSizes.includes(size.id)) return null;

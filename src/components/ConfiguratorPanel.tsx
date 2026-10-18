@@ -77,7 +77,11 @@ export function ConfiguratorPanel() {
   const rangesForShape = TOP_RANGES.filter((r) => r.shapeId === shapeId);
   const hasRange = rangesForShape.length > 0 && !!topRange;
   const colorsForRange = topRange ? TOP_COLORS.filter((c) => c.compatibleRanges.includes(topRange.id)) : [];
-  const sizesForShape = SIZES.filter((s) => s.shapeId === shapeId);
+  const sizesForShape = SIZES.filter(
+    (s) =>
+      s.shapeId === shapeId &&
+      (!s.compatibleRanges || (!!topRange && s.compatibleRanges.includes(topRange.id)))
+  );
   const legStylesForSelection = LEG_STYLES.filter(
     (l) =>
       l.compatibleShapes.includes(shapeId) &&
@@ -157,6 +161,9 @@ export function ConfiguratorPanel() {
                   />
                 ))}
               </div>
+              {topRange.bespokeSizeNote && (
+                <p className="step-section__note">{topRange.bespokeSizeNote}</p>
+              )}
             </StepSection>
 
             <StepSection index={4} title="Finish" summary={topColor.label}>
