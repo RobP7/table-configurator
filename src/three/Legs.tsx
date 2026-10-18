@@ -123,8 +123,10 @@ function Beam({
   );
 }
 
-// General beam between two arbitrary 3D points — needed for "spider" hub legs,
-// which radiate diagonally (varying x and z at once), unlike Beam's per-end legs.
+// General beam between two arbitrary 3D points — needed for "spider" hub legs
+// (which radiate diagonally, varying x and z at once) and the "tripleX"
+// zigzag chain (which leans along x as y varies, holding z constant) —
+// unlike Beam, which only varies y/z at a fixed x.
 function Leg3D({
   from,
   to,
@@ -132,10 +134,14 @@ function Leg3D({
   color,
   roughness,
   metalness,
+  image,
+  square,
 }: LegMaterialProps & {
   from: [number, number, number];
   to: [number, number, number];
   radius: number;
+  image?: string;
+  square?: boolean;
 }) {
   const start = new Vector3(...from);
   const end = new Vector3(...to);
@@ -146,11 +152,20 @@ function Leg3D({
     new Vector3(0, 1, 0),
     direction.normalize()
   );
+  const side = radius * 1.8;
 
   return (
     <mesh position={mid} quaternion={quaternion} castShadow>
-      <cylinderGeometry args={[radius, radius, length, 12]} />
-      <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
+      {square ? (
+        <boxGeometry args={[side, length, side]} />
+      ) : (
+        <cylinderGeometry args={[radius, radius, length, 12]} />
+      )}
+      {image ? (
+        <TexturedBeamMaterial image={image} len={length} radius={radius} roughness={roughness} metalness={metalness} />
+      ) : (
+        <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
+      )}
     </mesh>
   );
 }
@@ -371,19 +386,28 @@ export function Legs({
   const columnRadius = 0.045;
 
   if (renderStyle === "tripleX") {
-    // Three X-crosses standing on one shared steel base plate, centered
-    // under the table rather than at the two ends (unlike "xframe", which
-    // is two separate X legs with no connecting plate).
-    // Box side ~4.5cm (radius 0.025 * 1.8), plate sized from the real photos'
-    // measured proportions — the base plate spans roughly 2/3 of the table's
-    // length, not just the narrow footprint under the X-cluster.
-    const barRadius = 0.025;
+    // Real product ("Bold Center X Stahl") is a zigzag CHAIN of 4 straight
+    // beams on one shared base plate — 4 mounting plates under the
+    // tabletop, each beam leaning along the table's length so consecutive
+    // beams cross each other, producing 3 crossing points from 4 beams.
+    // NOT 3 independent X-pairs splayed sideways in Z (what this used to
+    // build) — that was a different structure entirely, not just
+    // different proportions, confirmed against the manufacturer's own
+    // isolated product photo of the bare frame.
+    const barSide = 0.045;
     const plateThickness = 0.02;
-    const xSpan = Math.min(halfL * 0.9, halfL - 0.05);
-    const xPositions = [-xSpan * 0.55, 0, xSpan * 0.55];
     const footZ = Math.min(halfW * 0.8, halfW - 0.05);
-    const plateLength = Math.min(length * 0.62, xSpan * 1.9);
     const plateWidth = footZ * 2 * 1.05;
+    const plateLength = Math.min(length * 0.62, halfL * 1.9);
+    const halfPlate = plateLength / 2;
+
+    const beamCount = 4;
+    const topInset = halfPlate * 0.18;
+    const topXs = Array.from({ length: beamCount }, (_, i) => {
+      const t = i / (beamCount - 1); // 0..1
+      return -(halfPlate - topInset) + t * 2 * (halfPlate - topInset);
+    });
+    const lean = ((halfPlate - topInset) * 2) / (beamCount - 1) / 2;
 
     return (
       <group>
@@ -401,12 +425,21 @@ export function Legs({
             <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
           )}
         </mesh>
-        {xPositions.map((x, i) => (
-          <group key={i}>
-            <Beam x={x} y0={legHeight} z0={-footZ} y1={plateThickness} z1={footZ} radius={barRadius} image={image} square {...mat} />
-            <Beam x={x} y0={legHeight} z0={footZ} y1={plateThickness} z1={-footZ} radius={barRadius} image={image} square {...mat} />
-          </group>
-        ))}
+        {topXs.map((topX, i) => {
+          const dir = i % 2 === 0 ? 1 : -1;
+          const bottomX = topX + dir * lean;
+          return (
+            <Leg3D
+              key={i}
+              from={[topX, legHeight, 0]}
+              to={[bottomX, plateThickness, 0]}
+              radius={barSide / 1.8}
+              image={image}
+              square
+              {...mat}
+            />
+          );
+        })}
       </group>
     );
   }
