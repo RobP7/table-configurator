@@ -79,7 +79,11 @@ function treeEdgeShape(length: number, width: number): Shape {
   const halfL = length / 2;
   const halfW = width / 2;
   const segments = 40;
-  const amp = Math.min(length * 0.005, width * 0.08);
+  // The literal real-world amplitude measured from the reference photo
+  // (~8mm on a 180cm table) reads as essentially flat once placed in the
+  // 3D viewer's default framing — floored here so the real wave pattern
+  // stays visibly a "live edge" rather than disappearing at this scale.
+  const amp = Math.max(Math.min(length * 0.015, width * 0.12), 0.018);
 
   const wavyEdge = (dir: 1 | -1): [number, number][] => {
     const pts: [number, number][] = [];
