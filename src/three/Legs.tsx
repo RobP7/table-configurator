@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import { LatheGeometry, Quaternion, Vector2, Vector3 } from "three";
+import { useEffect, useMemo } from "react";
+import { useTexture } from "@react-three/drei";
+import { LatheGeometry, Quaternion, RepeatWrapping, SRGBColorSpace, Vector2, Vector3 } from "three";
 import type { LegRenderStyle } from "../config/options";
 
 interface LegMaterialProps {
@@ -14,6 +15,64 @@ interface LegsProps extends LegMaterialProps {
   width: number; // meters
   tableHeight: number; // meters
   topThickness: number; // meters
+  image?: string; // real leg photo — texture-mapped on styles that support it
+}
+
+// Wraps the real leg photo around a beam's cylindrical surface — the
+// default cylinder UV (U = around the circumference, V = along the
+// length) tiles cleanly, unlike trying to wrap a photo around the
+// irregular rectangular tabletop edge.
+function TexturedBeamMaterial({
+  image,
+  len,
+  radius,
+  roughness,
+  metalness,
+}: {
+  image: string;
+  len: number;
+  radius: number;
+  roughness: number;
+  metalness: number;
+}) {
+  const texture = useTexture(image);
+  useEffect(() => {
+    texture.colorSpace = SRGBColorSpace;
+    texture.wrapS = RepeatWrapping;
+    texture.wrapT = RepeatWrapping;
+    // Tile roughly square-ish patches around the beam rather than one
+    // giant stretched image.
+    const circumference = Math.PI * 2 * radius;
+    texture.repeat.set(Math.max(circumference / 0.05, 2), Math.max(len / 0.05, 1));
+    texture.needsUpdate = true;
+  }, [texture, len, radius]);
+
+  return <meshStandardMaterial map={texture} roughness={roughness} metalness={metalness} />;
+}
+
+function TexturedPlateMaterial({
+  image,
+  plateLength,
+  plateWidth,
+  roughness,
+  metalness,
+}: {
+  image: string;
+  plateLength: number;
+  plateWidth: number;
+  roughness: number;
+  metalness: number;
+}) {
+  const texture = useTexture(image);
+  useEffect(() => {
+    texture.colorSpace = SRGBColorSpace;
+    texture.wrapS = RepeatWrapping;
+    texture.wrapT = RepeatWrapping;
+    texture.repeat.set(Math.max(plateLength / 0.12, 2), Math.max(plateWidth / 0.12, 1));
+    texture.needsUpdate = true;
+  }, [texture, plateLength, plateWidth]);
+
+  return <meshStandardMaterial map={texture} roughness={roughness} metalness={metalness} />;
 }
 
 function Beam({
@@ -26,6 +85,7 @@ function Beam({
   color,
   roughness,
   metalness,
+  image,
 }: LegMaterialProps & {
   x: number;
   y0: number;
@@ -33,6 +93,7 @@ function Beam({
   y1: number;
   z1: number;
   radius: number;
+  image?: string;
 }) {
   const dy = y1 - y0;
   const dz = z1 - z0;
@@ -44,7 +105,11 @@ function Beam({
   return (
     <mesh position={[x, midY, midZ]} rotation={[angle, 0, 0]} castShadow>
       <cylinderGeometry args={[radius, radius, len, 12]} />
-      <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
+      {image ? (
+        <TexturedBeamMaterial image={image} len={len} radius={radius} roughness={roughness} metalness={metalness} />
+      ) : (
+        <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
+      )}
     </mesh>
   );
 }
@@ -90,6 +155,7 @@ export function Legs({
   color,
   roughness,
   metalness,
+  image,
 }: LegsProps) {
   const legHeight = tableHeight - topThickness;
   const inset = 0.08;
@@ -311,12 +377,22 @@ export function Legs({
       <group>
         <mesh position={[0, plateThickness / 2, 0]} castShadow receiveShadow>
           <boxGeometry args={[plateLength, plateThickness, plateWidth]} />
-          <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
+          {image ? (
+            <TexturedPlateMaterial
+              image={image}
+              plateLength={plateLength}
+              plateWidth={plateWidth}
+              roughness={roughness}
+              metalness={metalness}
+            />
+          ) : (
+            <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
+          )}
         </mesh>
         {xPositions.map((x, i) => (
           <group key={i}>
-            <Beam x={x} y0={legHeight} z0={-footZ} y1={plateThickness} z1={footZ} radius={barRadius} {...mat} />
-            <Beam x={x} y0={legHeight} z0={footZ} y1={plateThickness} z1={-footZ} radius={barRadius} {...mat} />
+            <Beam x={x} y0={legHeight} z0={-footZ} y1={plateThickness} z1={footZ} radius={barRadius} image={image} {...mat} />
+            <Beam x={x} y0={legHeight} z0={footZ} y1={plateThickness} z1={-footZ} radius={barRadius} image={image} {...mat} />
           </group>
         ))}
       </group>

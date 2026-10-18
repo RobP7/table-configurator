@@ -65,6 +65,7 @@ export function TableModel() {
         color={legFinish.color}
         roughness={legFinish.roughness}
         metalness={legFinish.metalness}
+        image={legStyle.textureImage}
       />
     </group>
   );

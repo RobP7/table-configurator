@@ -81,7 +81,11 @@ export interface LegStyleOption {
   // palette). Omitted means every finish matching this leg's material.
   compatibleFinishes?: string[];
   priceModifier: number; // placeholder — replace with real price list
-  image?: string; // path under /public, e.g. "/legs/light-x-oak.png"
+  image?: string; // option-card product photo, path under /public, e.g. "/legs/light-x-oak.png"
+  // A clean close-up crop of just the metal/wood surface (no background, no
+  // seams), texture-mapped onto the 3D leg geometry — distinct from `image`
+  // above, which is the full product photo shown in the option card.
+  textureImage?: string;
 }
 
 export interface LegFinishOption {
@@ -293,6 +297,7 @@ export const LEG_STYLES: LegStyleOption[] = [
     compatibleFinishes: ["steel-bronze-patina"],
     priceModifier: 0,
     image: "/legs/caradoc-triple-x.jpg",
+    textureImage: "/legs/caradoc-triple-x-texture.jpg",
   },
 ];
 

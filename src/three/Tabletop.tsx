@@ -52,22 +52,44 @@ function rectangleShape(length: number, width: number): Shape {
   return shape;
 }
 
+// Real live-edge silhouette, traced from The Caradoc's reference photo
+// (column-scanned for the wood/background boundary, corner-rounding
+// trimmed off, smoothed, and normalized to -1..1) rather than a synthetic
+// sine wave — so the undulation matches the actual product instead of an
+// approximated one.
+const REAL_LIVE_EDGE_WAVE = [
+  0.093, 0.093, 0.093, 0.093, 0.172, 0.137, 0.093, 0.047, -0.008, -0.109, -0.109, -0.21, -0.21,
+  -0.21, -0.109, -0.109, -0.09, -0.037, -0.081, -0.109, -0.146, -0.21, -0.311, -0.311, -0.295,
+  -0.21, -0.21, -0.112, -0.109, -0.086, -0.008, -0.008, -0.008, -0.045, -0.109, -0.109, -0.16,
+  -0.306,
+];
+
+function sampleLiveEdgeWave(t: number): number {
+  const n = REAL_LIVE_EDGE_WAVE.length;
+  const pos = t * (n - 1);
+  const i0 = Math.floor(pos);
+  const i1 = Math.min(i0 + 1, n - 1);
+  const frac = pos - i0;
+  return REAL_LIVE_EDGE_WAVE[i0] * (1 - frac) + REAL_LIVE_EDGE_WAVE[i1] * frac;
+}
+
 // Natural "live edge" (Baumkante) — long sides undulate like a tree's
 // natural edge, short ends stay straight.
 function treeEdgeShape(length: number, width: number): Shape {
   const halfL = length / 2;
   const halfW = width / 2;
-  const segments = 20;
-  const amp = Math.min(width * 0.05, 0.02);
+  const segments = 40;
+  const amp = Math.min(length * 0.005, width * 0.08);
 
   const wavyEdge = (dir: 1 | -1): [number, number][] => {
     const pts: [number, number][] = [];
     for (let i = 0; i <= segments; i++) {
       const t = i / segments;
       const x = -halfL + length * t;
-      const wobble =
-        (Math.sin(t * Math.PI * 4.3 + dir * 2) * 0.6 + Math.sin(t * Math.PI * 9 + dir) * 0.4) *
-        amp;
+      // Opposite edge reads the same real-traced pattern in reverse —
+      // still genuinely sourced data, not a mirrored duplicate — so the
+      // two long sides don't look identically wavy.
+      const wobble = sampleLiveEdgeWave(dir === 1 ? t : 1 - t) * amp;
       pts.push([x, dir * halfW + wobble]);
     }
     return pts;
@@ -110,7 +132,18 @@ function useRectangularGeometry(
 ): BufferGeometry {
   return useMemo(() => {
     if (edgeStyle === "tree") {
-      return extrudeFlat(treeEdgeShape(length, width), thickness);
+      // Real reference close-ups show a soft rounded-over transition from
+      // top face to side, not a sharp flat edge — a shallow multi-segment
+      // bevel approximates that curve (bevelSegments 4, not 1, so it reads
+      // as rounded rather than a faceted chamfer).
+      const bevelSize = Math.min(thickness * 0.2, 0.01);
+      const depth = Math.max(thickness - bevelSize * 2, thickness * 0.5);
+      return extrudeFlat(treeEdgeShape(length, width), depth, {
+        bevelEnabled: true,
+        bevelThickness: bevelSize,
+        bevelSize,
+        bevelSegments: 4,
+      });
     }
     if (edgeStyle === "chamfer") {
       const bevelSize = Math.min(thickness * 0.9, Math.min(length, width) * 0.08);
@@ -265,6 +298,7 @@ export function Tabletop({
 
   const geometry = shapeId === "rectangular" ? rectGeometry : roundGeometry;
   const topSurfaceY = useMemo(() => y + thickness / 2 + 0.0015, [y, thickness]);
+  const bottomSurfaceY = useMemo(() => y - thickness / 2 - 0.0015, [y, thickness]);
 
   return (
     <group>
@@ -272,14 +306,24 @@ export function Tabletop({
         {material}
       </mesh>
       {image && (
-        <TopSurfacePhoto
-          shapeId={shapeId}
-          edgeStyle={edgeStyle}
-          length={length}
-          width={width}
-          y={topSurfaceY}
-          image={image}
-        />
+        <>
+          <TopSurfacePhoto
+            shapeId={shapeId}
+            edgeStyle={edgeStyle}
+            length={length}
+            width={width}
+            y={topSurfaceY}
+            image={image}
+          />
+          <TopSurfacePhoto
+            shapeId={shapeId}
+            edgeStyle={edgeStyle}
+            length={length}
+            width={width}
+            y={bottomSurfaceY}
+            image={image}
+          />
+        </>
       )}
     </group>
   );
