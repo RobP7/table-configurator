@@ -181,6 +181,14 @@ export const TOP_RANGES: TopRangeOption[] = [
     edgeStyle: "tree",
     image: "/tops/the-caradoc.jpg",
     bespokeSizeNote: "This 180cm size matches the real reference photos exactly. Other sizes (160cm–280cm) available on request — get in touch.",
+    photoGallery: [
+      "/caradoc-real/angle-1.jpg",
+      "/caradoc-real/angle-2.jpg",
+      "/caradoc-real/angle-3.jpg",
+      "/caradoc-real/angle-4.jpg",
+      "/caradoc-real/angle-5.jpg",
+      "/caradoc-real/angle-6.jpg",
+    ],
   },
 ];
 
