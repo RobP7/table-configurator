@@ -234,7 +234,7 @@ export const TOP_RANGES: TopRangeOption[] = [
     ],
     // The photos show this leg; any other leg gets the "illustrative" note.
     legGalleries: {
-      "caradoc-triple-x": [
+      "bold-center-double-x": [
         "/caradoc-real/angle-1.jpg",
         "/caradoc-real/angle-2.jpg",
         "/caradoc-real/angle-3.jpg",
@@ -449,16 +449,15 @@ export const LEG_STYLES: LegStyleOption[] = [
     image: "/legs/wrekin-star.jpg",
   },
   {
-    id: "caradoc-triple-x",
+    id: "bold-center-double-x",
     label: "Triple X-Base",
     description: "Three crossed steel X-legs on a shared base plate",
     material: "steel",
     renderStyle: "tripleX",
     compatibleShapes: ["rectangular"],
-    compatibleRanges: ["the-caradoc", "the-haughmond"],
-    compatibleFinishes: ["steel-bronze-patina"],
+    compatibleFinishes: ["steel-bronze-patina", "steel-black", "steel-white"],
     priceModifier: 0,
-    image: "/legs/caradoc-triple-x.jpg",
+    image: "/legs/bold-center-double-x.jpg",
     textureImage: "/legs/caradoc-triple-x-texture.jpg",
   },
 
@@ -685,17 +684,6 @@ export const LEG_STYLES: LegStyleOption[] = [
     compatibleFinishes: STEEL_LEG_FINISH_IDS,
     priceModifier: 0,
     image: "/legs/bold-center-x.jpg",
-  },
-  {
-    id: "bold-center-double-x",
-    label: "Bold Center Double X",
-    description: "Twin heavy center steel posts, 180cm, 10x10cm",
-    material: "steel",
-    renderStyle: "trestle",
-    compatibleShapes: ["rectangular"],
-    compatibleFinishes: STEEL_LEG_FINISH_IDS,
-    priceModifier: 0,
-    image: "/legs/bold-center-double-x.jpg",
   },
   {
     id: "bold-spider-steel",

@@ -59,6 +59,9 @@ function legFinishFits(leg: LegStyleOption, finishId: string | null): boolean {
 }
 
 function firstFittingFinish(leg: LegStyleOption): string {
+  // A leg's own finish list is in preference order (first = default).
+  const preferred = leg.compatibleFinishes?.find((id) => legFinishFits(leg, id));
+  if (preferred) return preferred;
   return (
     LEG_FINISHES.find((f) => legFinishFits(leg, f.id))?.id ??
     LEG_FINISHES.find((f) => f.material === leg.material)!.id
@@ -140,8 +143,11 @@ function reconcile(
   const legStillFits = currentLeg ? legFits(currentLeg, shapeId, sizeId, rangeId) : false;
   const newLegStyle =
     legStillFits && !resetLeg ? currentLeg : firstFittingLeg(shapeId, sizeId, rangeId);
+  // A different leg starts on its own first finish (e.g. the Caradoc's base
+  // opens in the bronze shown in its photos) rather than inheriting the last
+  // leg's colour; the same leg keeps whatever finish is still valid.
   const legFinishId = newLegStyle
-    ? legFinishFits(newLegStyle, state.legFinishId)
+    ? !resetLeg && newLegStyle.id === currentLeg?.id && legFinishFits(newLegStyle, state.legFinishId)
       ? state.legFinishId
       : firstFittingFinish(newLegStyle)
     : null;
@@ -188,7 +194,7 @@ export const useConfigStore = create<ConfigState>((set) => ({
         ? currentLeg
         : firstFittingLeg(state.shapeId, id, state.topRangeId);
       const legFinishId = newLegStyle
-        ? legFinishFits(newLegStyle, state.legFinishId)
+        ? newLegStyle.id === currentLeg?.id && legFinishFits(newLegStyle, state.legFinishId)
           ? state.legFinishId
           : firstFittingFinish(newLegStyle)
         : null;

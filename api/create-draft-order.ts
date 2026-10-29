@@ -262,12 +262,11 @@ const LEG_STYLES: LegStyleOption[] = [
     priceModifier: 0,
   },
   {
-    id: "caradoc-triple-x",
+    id: "bold-center-double-x",
     label: "Triple X-Base",
     material: "steel",
     compatibleShapes: ["rectangular"],
-    compatibleRanges: ["the-caradoc", "the-haughmond"],
-    compatibleFinishes: ["steel-bronze-patina"],
+    compatibleFinishes: ["steel-bronze-patina", "steel-black", "steel-white"],
     priceModifier: 0,
   },
   {
@@ -430,14 +429,6 @@ const LEG_STYLES: LegStyleOption[] = [
   {
     id: "bold-center-x",
     label: "Bold Center X",
-    material: "steel",
-    compatibleShapes: ["rectangular"],
-    compatibleFinishes: STEEL_LEG_FINISH_IDS,
-    priceModifier: 0,
-  },
-  {
-    id: "bold-center-double-x",
-    label: "Bold Center Double X",
     material: "steel",
     compatibleShapes: ["rectangular"],
     compatibleFinishes: STEEL_LEG_FINISH_IDS,
