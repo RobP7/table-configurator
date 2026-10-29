@@ -79,8 +79,8 @@ const SHAPES: ShapeOption[] = [
 ];
 
 const SIZES: SizeOption[] = [
-  { id: "caradoc-180x100", label: "180 x 100 cm", shapeId: "rectangular", priceModifier: 40, compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-160x100", label: "160 x 100 cm", shapeId: "rectangular", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-180x100", label: "180 x 100 cm", shapeId: "rectangular", priceModifier: 40, compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-200x100", label: "200 x 100 cm", shapeId: "rectangular", priceModifier: 90, compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-220x100", label: "220 x 100 cm", shapeId: "rectangular", priceModifier: 140, compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-240x100", label: "240 x 100 cm", shapeId: "rectangular", priceModifier: 190, compatibleRanges: ["the-caradoc"] },
