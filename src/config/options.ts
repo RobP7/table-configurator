@@ -168,6 +168,17 @@ export const SIZES: SizeOption[] = [
   { id: "haughmond-280", label: "280cm", shapeId: "rectangular", length: 280, width: 100, priceModifier: 2876, compatibleRanges: ["the-haughmond"] },
   { id: "haughmond-300", label: "300cm", shapeId: "rectangular", length: 300, width: 100, priceModifier: 3086, compatibleRanges: ["the-haughmond"] },
 
+  // The Wrekin — 160cm to 300cm. Rectangular basePrice is £899, so these
+  // modifiers give the real price list: £2,099 (160cm) up to £3,499 (300cm).
+  { id: "wrekin-160", label: "160cm", shapeId: "rectangular", length: 160, width: 100, priceModifier: 1200, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-180", label: "180cm", shapeId: "rectangular", length: 180, width: 100, priceModifier: 1396, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-200", label: "200cm", shapeId: "rectangular", length: 200, width: 100, priceModifier: 1600, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-220", label: "220cm", shapeId: "rectangular", length: 220, width: 100, priceModifier: 1790, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-240", label: "240cm", shapeId: "rectangular", length: 240, width: 100, priceModifier: 1990, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-260", label: "260cm", shapeId: "rectangular", length: 260, width: 100, priceModifier: 2200, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-280", label: "280cm", shapeId: "rectangular", length: 280, width: 100, priceModifier: 2396, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-300", label: "300cm", shapeId: "rectangular", length: 300, width: 100, priceModifier: 2600, compatibleRanges: ["the-wrekin"] },
+
   // Oval
   { id: "oval-130x70", label: "130 x 70 cm", shapeId: "oval", length: 130, width: 70, priceModifier: 0 },
   { id: "oval-200x100", label: "200 x 100 cm", shapeId: "oval", length: 200, width: 100, priceModifier: 120 },
@@ -243,6 +254,20 @@ export const TOP_RANGES: TopRangeOption[] = [
         "/haughmond-real/metal-4.jpg",
       ],
     },
+  },
+  {
+    id: "the-wrekin",
+    label: "The Wrekin",
+    shapeId: "rectangular",
+    description: "Solid oak plank dining table on a black steel star base",
+    edgeStyle: "straight",
+    image: "/tops/the-wrekin.jpg",
+    photoGallery: [
+      "/wrekin-real/angle-1.jpg",
+      "/wrekin-real/angle-2.jpg",
+      "/wrekin-real/angle-3.jpg",
+      "/wrekin-real/angle-4.jpg",
+    ],
   },
 ];
 
@@ -334,6 +359,10 @@ export const TOP_COLORS: TopColorOption[] = [
   { id: "caradoc-linen", label: "Linen", color: "#d2aa84", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-linen.jpg", compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-walnut", label: "Walnut", color: "#a17050", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-walnut.jpg", compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-midnight-sky", label: "Midnight Sky", color: "#435664", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-midnight-sky.jpg", compatibleRanges: ["the-caradoc"] },
+
+  // --- The Wrekin — only the finish shown in the photos for now (swatch
+  // cropped from the real corner close-up, colour sampled from it). ---
+  { id: "wrekin-natural", label: "Natural", color: "#d9b491", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/wrekin-finish-natural.jpg", compatibleRanges: ["the-wrekin"] },
 ];
 
 // The Haughmond's wooden trestle leg comes in the same Rubio palette as
@@ -385,6 +414,18 @@ export const LEG_STYLES: LegStyleOption[] = [
     compatibleFinishes: ["steel-black"],
     priceModifier: 0,
     image: "/legs/haughmond-metal-u.jpg",
+  },
+  {
+    id: "wrekin-star",
+    label: "Steel Star Base",
+    description: "Black steel star base",
+    material: "steel",
+    renderStyle: "spider",
+    compatibleShapes: ["rectangular"],
+    compatibleRanges: ["the-wrekin"],
+    compatibleFinishes: ["steel-black"],
+    priceModifier: 0,
+    image: "/legs/wrekin-star.jpg",
   },
   {
     id: "caradoc-triple-x",

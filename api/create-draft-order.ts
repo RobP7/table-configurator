@@ -97,6 +97,15 @@ const SIZES: SizeOption[] = [
   { id: "haughmond-280", label: "280cm", shapeId: "rectangular", priceModifier: 2876, compatibleRanges: ["the-haughmond"] },
   { id: "haughmond-300", label: "300cm", shapeId: "rectangular", priceModifier: 3086, compatibleRanges: ["the-haughmond"] },
 
+  { id: "wrekin-160", label: "160cm", shapeId: "rectangular", priceModifier: 1200, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-180", label: "180cm", shapeId: "rectangular", priceModifier: 1396, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-200", label: "200cm", shapeId: "rectangular", priceModifier: 1600, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-220", label: "220cm", shapeId: "rectangular", priceModifier: 1790, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-240", label: "240cm", shapeId: "rectangular", priceModifier: 1990, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-260", label: "260cm", shapeId: "rectangular", priceModifier: 2200, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-280", label: "280cm", shapeId: "rectangular", priceModifier: 2396, compatibleRanges: ["the-wrekin"] },
+  { id: "wrekin-300", label: "300cm", shapeId: "rectangular", priceModifier: 2600, compatibleRanges: ["the-wrekin"] },
+
   { id: "oval-130x70", label: "130 x 70 cm", shapeId: "oval", priceModifier: 0 },
   { id: "oval-200x100", label: "200 x 100 cm", shapeId: "oval", priceModifier: 120 },
   { id: "oval-200x110", label: "200 x 110 cm", shapeId: "oval", priceModifier: 140 },
@@ -116,6 +125,7 @@ const TOP_RANGES: TopRangeOption[] = [
   { id: "the-mynd", label: "The Mynd", shapeId: "round" },
   { id: "the-caradoc", label: "The Caradoc - Live Edge", shapeId: "rectangular" },
   { id: "the-haughmond", label: "The Haughmond", shapeId: "rectangular" },
+  { id: "the-wrekin", label: "The Wrekin", shapeId: "rectangular" },
 ];
 
 const TOP_COLORS: TopColorOption[] = [
@@ -199,6 +209,7 @@ const TOP_COLORS: TopColorOption[] = [
   { id: "caradoc-linen", label: "Linen", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-walnut", label: "Walnut", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-midnight-sky", label: "Midnight Sky", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "wrekin-natural", label: "Natural", priceModifier: 0, compatibleRanges: ["the-wrekin"] },
 ];
 
 // The Haughmond's wooden trestle leg comes in the same palette as the top.
@@ -235,6 +246,15 @@ const LEG_STYLES: LegStyleOption[] = [
     material: "steel",
     compatibleShapes: ["rectangular"],
     compatibleRanges: ["the-haughmond"],
+    compatibleFinishes: ["steel-black"],
+    priceModifier: 0,
+  },
+  {
+    id: "wrekin-star",
+    label: "Steel Star Base",
+    material: "steel",
+    compatibleShapes: ["rectangular"],
+    compatibleRanges: ["the-wrekin"],
     compatibleFinishes: ["steel-black"],
     priceModifier: 0,
   },
