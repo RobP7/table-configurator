@@ -2,6 +2,7 @@ import { create } from "zustand";
 import {
   LEG_FINISHES,
   LEG_STYLES,
+  legAvailable,
   SHAPES,
   SIZES,
   TOP_COLORS,
@@ -38,10 +39,8 @@ function legFits(
   sizeId: string,
   rangeId: string | null
 ): boolean {
-  if (!leg.compatibleShapes.includes(shapeId)) return false;
-  if (leg.compatibleRanges && (!rangeId || !leg.compatibleRanges.includes(rangeId))) return false;
-  if (leg.compatibleSizes && !leg.compatibleSizes.includes(sizeId)) return false;
-  return true;
+  const size = SIZES.find((s) => s.id === sizeId);
+  return !!size && legAvailable(leg, shapeId, size, rangeId);
 }
 
 function firstFittingLeg(

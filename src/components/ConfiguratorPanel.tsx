@@ -3,6 +3,7 @@ import {
   CURRENCY,
   LEG_FINISHES,
   LEG_STYLES,
+  legAvailable,
   SHAPES,
   SIZES,
   TOP_COLORS,
@@ -82,11 +83,8 @@ export function ConfiguratorPanel() {
       s.shapeId === shapeId &&
       (!s.compatibleRanges || (!!topRange && s.compatibleRanges.includes(topRange.id)))
   );
-  const legStylesForSelection = LEG_STYLES.filter(
-    (l) =>
-      l.compatibleShapes.includes(shapeId) &&
-      (!l.compatibleRanges || (!!topRange && l.compatibleRanges.includes(topRange.id))) &&
-      (!l.compatibleSizes || l.compatibleSizes.includes(sizeId))
+  const legStylesForSelection = LEG_STYLES.filter((l) =>
+    legAvailable(l, shapeId, size, topRange?.id ?? null)
   );
   const legFinishesForMaterial = legStyle
     ? LEG_FINISHES.filter(

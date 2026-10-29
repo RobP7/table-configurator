@@ -13,8 +13,16 @@ function App() {
   // A leg with its own photos shows those; otherwise fall back to the
   // range's default gallery and say it's illustrative.
   const legGallery = legStyle ? topRange?.legGalleries?.[legStyle.id] : undefined;
-  const gallery = legGallery ?? topRange?.photoGallery;
   const illustrative = !!topRange?.legGalleries && !legGallery && !!legStyle;
+  // For a leg with no photos on this table, show the range's photos plus the
+  // chosen leg's own product photo.
+  const gallery = legGallery
+    ? legGallery
+    : topRange?.photoGallery
+      ? illustrative && legStyle?.image
+        ? [...topRange.photoGallery, legStyle.image]
+        : topRange.photoGallery
+      : undefined;
 
   return (
     <div className="app">
