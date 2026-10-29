@@ -135,9 +135,15 @@ export const SHAPES: ShapeOption[] = [
 // Sizes are shape-scoped: a round top only ever offers diameters, an oval
 // top offers its own length x width range, etc. Filtered by shapeId in the UI.
 export const SIZES: SizeOption[] = [
-  // The Caradoc — locked to just the 180cm size shown in the real
-  // reference photos for now (the only one actually photographed).
+  // The Caradoc — 160cm to 280cm. 180cm is listed first because it's the
+  // size shown in the reference photos (the default selection).
   { id: "caradoc-180x100", label: "180 x 100 cm", shapeId: "rectangular", length: 180, width: 100, priceModifier: 40, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-160x100", label: "160 x 100 cm", shapeId: "rectangular", length: 160, width: 100, priceModifier: 0, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-200x100", label: "200 x 100 cm", shapeId: "rectangular", length: 200, width: 100, priceModifier: 90, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-220x100", label: "220 x 100 cm", shapeId: "rectangular", length: 220, width: 100, priceModifier: 140, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-240x100", label: "240 x 100 cm", shapeId: "rectangular", length: 240, width: 100, priceModifier: 190, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-260x100", label: "260 x 100 cm", shapeId: "rectangular", length: 260, width: 100, priceModifier: 240, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-280x100", label: "280 x 100 cm", shapeId: "rectangular", length: 280, width: 100, priceModifier: 290, compatibleRanges: ["the-caradoc"] },
 
   // Oval
   { id: "oval-130x70", label: "130 x 70 cm", shapeId: "oval", length: 130, width: 70, priceModifier: 0 },
@@ -180,7 +186,7 @@ export const TOP_RANGES: TopRangeOption[] = [
     description: "Rectangular live-edge oak dining table on a triple steel X-base",
     edgeStyle: "tree",
     image: "/tops/the-caradoc.jpg",
-    bespokeSizeNote: "This 180cm size matches the real reference photos exactly. Other sizes (160cm–280cm) available on request — get in touch.",
+    bespokeSizeNote: "Need something longer than 280cm? Larger bespoke sizes are available on request — get in touch.",
     photoGallery: [
       "/caradoc-real/angle-1.jpg",
       "/caradoc-real/angle-2.jpg",
