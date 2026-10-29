@@ -136,14 +136,16 @@ export const SHAPES: ShapeOption[] = [
 // top offers its own length x width range, etc. Filtered by shapeId in the UI.
 export const SIZES: SizeOption[] = [
   // The Caradoc — 160cm to 280cm, listed in ascending order (the first entry
-  // is the default selection when switching to this shape).
-  { id: "caradoc-160x100", label: "160 x 100 cm", shapeId: "rectangular", length: 160, width: 100, priceModifier: 0, compatibleRanges: ["the-caradoc"] },
-  { id: "caradoc-180x100", label: "180 x 100 cm", shapeId: "rectangular", length: 180, width: 100, priceModifier: 40, compatibleRanges: ["the-caradoc"] },
-  { id: "caradoc-200x100", label: "200 x 100 cm", shapeId: "rectangular", length: 200, width: 100, priceModifier: 90, compatibleRanges: ["the-caradoc"] },
-  { id: "caradoc-220x100", label: "220 x 100 cm", shapeId: "rectangular", length: 220, width: 100, priceModifier: 140, compatibleRanges: ["the-caradoc"] },
-  { id: "caradoc-240x100", label: "240 x 100 cm", shapeId: "rectangular", length: 240, width: 100, priceModifier: 190, compatibleRanges: ["the-caradoc"] },
-  { id: "caradoc-260x100", label: "260 x 100 cm", shapeId: "rectangular", length: 260, width: 100, priceModifier: 240, compatibleRanges: ["the-caradoc"] },
-  { id: "caradoc-280x100", label: "280 x 100 cm", shapeId: "rectangular", length: 280, width: 100, priceModifier: 290, compatibleRanges: ["the-caradoc"] },
+  // is the default selection when switching to this shape). Rectangular
+  // basePrice is £899, so these modifiers give £2199 (160cm) to £3899 (280cm)
+  // in near-even steps (£283-284 per 20cm, rounded to whole pounds).
+  { id: "caradoc-160x100", label: "160 x 100 cm", shapeId: "rectangular", length: 160, width: 100, priceModifier: 1300, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-180x100", label: "180 x 100 cm", shapeId: "rectangular", length: 180, width: 100, priceModifier: 1583, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-200x100", label: "200 x 100 cm", shapeId: "rectangular", length: 200, width: 100, priceModifier: 1867, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-220x100", label: "220 x 100 cm", shapeId: "rectangular", length: 220, width: 100, priceModifier: 2150, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-240x100", label: "240 x 100 cm", shapeId: "rectangular", length: 240, width: 100, priceModifier: 2433, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-260x100", label: "260 x 100 cm", shapeId: "rectangular", length: 260, width: 100, priceModifier: 2717, compatibleRanges: ["the-caradoc"] },
+  { id: "caradoc-280x100", label: "280 x 100 cm", shapeId: "rectangular", length: 280, width: 100, priceModifier: 3000, compatibleRanges: ["the-caradoc"] },
 
   // Oval
   { id: "oval-130x70", label: "130 x 70 cm", shapeId: "oval", length: 130, width: 70, priceModifier: 0 },
