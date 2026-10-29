@@ -55,6 +55,7 @@ interface LegStyleOption {
   material: MaterialId;
   compatibleShapes: ShapeId[];
   compatibleSizes?: string[];
+  compatibleRanges?: string[];
   compatibleFinishes?: string[];
   priceModifier: number;
 }
@@ -87,6 +88,15 @@ const SIZES: SizeOption[] = [
   { id: "caradoc-260x100", label: "260 x 100 cm", shapeId: "rectangular", priceModifier: 2717, compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-280x100", label: "280 x 100 cm", shapeId: "rectangular", priceModifier: 3000, compatibleRanges: ["the-caradoc"] },
 
+  { id: "haughmond-160", label: "160cm", shapeId: "rectangular", priceModifier: 1600, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-180", label: "180cm", shapeId: "rectangular", priceModifier: 1796, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-200", label: "200cm", shapeId: "rectangular", priceModifier: 1996, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-220", label: "220cm", shapeId: "rectangular", priceModifier: 2200, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-240", label: "240cm", shapeId: "rectangular", priceModifier: 2490, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-260", label: "260cm", shapeId: "rectangular", priceModifier: 2680, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-280", label: "280cm", shapeId: "rectangular", priceModifier: 2876, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-300", label: "300cm", shapeId: "rectangular", priceModifier: 3086, compatibleRanges: ["the-haughmond"] },
+
   { id: "oval-130x70", label: "130 x 70 cm", shapeId: "oval", priceModifier: 0 },
   { id: "oval-200x100", label: "200 x 100 cm", shapeId: "oval", priceModifier: 120 },
   { id: "oval-200x110", label: "200 x 110 cm", shapeId: "oval", priceModifier: 140 },
@@ -105,49 +115,50 @@ const SIZES: SizeOption[] = [
 const TOP_RANGES: TopRangeOption[] = [
   { id: "the-mynd", label: "The Mynd", shapeId: "round" },
   { id: "the-caradoc", label: "The Caradoc - Live Edge", shapeId: "rectangular" },
+  { id: "the-haughmond", label: "The Haughmond", shapeId: "rectangular" },
 ];
 
 const TOP_COLORS: TopColorOption[] = [
-  { id: "mynd-pure", label: "Pure", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-natural", label: "Natural", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-charcoal", label: "Charcoal", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-white-5", label: "White 5%", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-chocolate", label: "Chocolate", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-dunes", label: "Dunes", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-shell-grey", label: "Shell Grey", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-macchiato", label: "Macchiato", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-affogato", label: "Affogato", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-almond", label: "Almond", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-arabica", label: "Arabica", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-ash-grey", label: "Ash Grey", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-black", label: "Black", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-bourbon", label: "Bourbon", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-castle-brown", label: "Castle Brown", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-cortado", label: "Cortado", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-cocoa", label: "Cocoa", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-cotton-white", label: "Cotton White", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-dark-oak", label: "Dark Oak", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-dark-roast", label: "Dark Roast", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-dulce", label: "Dulce", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-fern", label: "Fern", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-golden-hour", label: "Golden Hour", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-hazelnut", label: "Hazelnut", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-honey", label: "Honey", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-light-roast", label: "Light Roast", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-linen", label: "Linen", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-midnight-sky", label: "Midnight Sky", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-mist", label: "Mist", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-mist-5", label: "Mist 5%", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-mocha", label: "Mocha", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-oyster", label: "Oyster", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-red-velvet", label: "Red Velvet", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-smoke", label: "Smoke", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-smoke-5", label: "Smoke 5%", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-super-white", label: "Super White", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-vanilla", label: "Vanilla", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-vienna", label: "Vienna", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-walnut", label: "Walnut", priceModifier: 0, compatibleRanges: ["the-mynd"] },
-  { id: "mynd-white", label: "White", priceModifier: 0, compatibleRanges: ["the-mynd"] },
+  { id: "mynd-pure", label: "Pure", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-natural", label: "Natural", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-charcoal", label: "Charcoal", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-white-5", label: "White 5%", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-chocolate", label: "Chocolate", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-dunes", label: "Dunes", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-shell-grey", label: "Shell Grey", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-macchiato", label: "Macchiato", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-affogato", label: "Affogato", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-almond", label: "Almond", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-arabica", label: "Arabica", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-ash-grey", label: "Ash Grey", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-black", label: "Black", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-bourbon", label: "Bourbon", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-castle-brown", label: "Castle Brown", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-cortado", label: "Cortado", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-cocoa", label: "Cocoa", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-cotton-white", label: "Cotton White", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-dark-oak", label: "Dark Oak", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-dark-roast", label: "Dark Roast", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-dulce", label: "Dulce", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-fern", label: "Fern", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-golden-hour", label: "Golden Hour", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-hazelnut", label: "Hazelnut", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-honey", label: "Honey", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-light-roast", label: "Light Roast", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-linen", label: "Linen", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-midnight-sky", label: "Midnight Sky", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-mist", label: "Mist", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-mist-5", label: "Mist 5%", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-mocha", label: "Mocha", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-oyster", label: "Oyster", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-red-velvet", label: "Red Velvet", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-smoke", label: "Smoke", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-smoke-5", label: "Smoke 5%", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-super-white", label: "Super White", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-vanilla", label: "Vanilla", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-vienna", label: "Vienna", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-walnut", label: "Walnut", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-white", label: "White", priceModifier: 0, compatibleRanges: ["the-mynd", "the-haughmond"] },
   { id: "caradoc-pure", label: "Pure", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-natural", label: "Natural", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-charcoal", label: "Charcoal", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
@@ -190,6 +201,16 @@ const TOP_COLORS: TopColorOption[] = [
   { id: "caradoc-midnight-sky", label: "Midnight Sky", priceModifier: 0, compatibleRanges: ["the-caradoc"] },
 ];
 
+// The Haughmond's wooden trestle leg comes in the same palette as the top.
+const WOOD_LEG_FINISHES: LegFinishOption[] = TOP_COLORS.filter((c) => c.id.startsWith("mynd-")).map(
+  (c) => ({
+    id: `wood-leg-${c.id.slice("mynd-".length)}`,
+    label: c.label,
+    material: "oak" as const,
+    priceModifier: 0,
+  })
+);
+
 const LEG_STYLES: LegStyleOption[] = [
   {
     id: "mynd-pedestal",
@@ -200,10 +221,29 @@ const LEG_STYLES: LegStyleOption[] = [
     priceModifier: 0,
   },
   {
+    id: "haughmond-trestle",
+    label: "Wooden Trestle",
+    material: "oak",
+    compatibleShapes: ["rectangular"],
+    compatibleRanges: ["the-haughmond"],
+    compatibleFinishes: WOOD_LEG_FINISHES.map((f) => f.id),
+    priceModifier: 0,
+  },
+  {
+    id: "haughmond-metal-u",
+    label: "Steel U-Frame",
+    material: "steel",
+    compatibleShapes: ["rectangular"],
+    compatibleRanges: ["the-haughmond"],
+    compatibleFinishes: ["steel-black"],
+    priceModifier: 0,
+  },
+  {
     id: "caradoc-triple-x",
     label: "Triple X-Base",
     material: "steel",
     compatibleShapes: ["rectangular"],
+    compatibleRanges: ["the-caradoc", "the-haughmond"],
     compatibleFinishes: ["steel-bronze-patina"],
     priceModifier: 0,
   },
@@ -216,6 +256,7 @@ const LEG_FINISHES: LegFinishOption[] = [
   { id: "steel-bronze-patina", label: "Aged Bronze Steel", material: "steel", priceModifier: 0 },
   { id: "wood-oak", label: "Natural Oak (matching top)", material: "oak", priceModifier: 0 },
   { id: "wood-black", label: "Black Stained Oak", material: "oak", priceModifier: 40 },
+  ...WOOD_LEG_FINISHES,
 ];
 
 interface OrderRequestBody {
@@ -257,6 +298,7 @@ function resolveConfig(body: OrderRequestBody) {
   if (size.compatibleRanges && !size.compatibleRanges.includes(topRange.id)) return null;
   if (!topColor.compatibleRanges.includes(topRange.id)) return null;
   if (!legStyle.compatibleShapes.includes(shape.id)) return null;
+  if (legStyle.compatibleRanges && !legStyle.compatibleRanges.includes(topRange.id)) return null;
   if (legStyle.compatibleSizes && !legStyle.compatibleSizes.includes(size.id)) return null;
   if (legFinish.material !== legStyle.material) return null;
   if (legStyle.compatibleFinishes && !legStyle.compatibleFinishes.includes(legFinish.id)) {

@@ -3,9 +3,11 @@ import { useState } from "react";
 interface RealPhotoGalleryProps {
   images: string[];
   label: string;
+  // Shown over the photo when it isn't an exact match for the selection.
+  note?: string;
 }
 
-export function RealPhotoGallery({ images, label }: RealPhotoGalleryProps) {
+export function RealPhotoGallery({ images, label, note }: RealPhotoGalleryProps) {
   const [index, setIndex] = useState(0);
 
   const prev = () => setIndex((i) => (i - 1 + images.length) % images.length);
@@ -15,6 +17,7 @@ export function RealPhotoGallery({ images, label }: RealPhotoGalleryProps) {
     <div className="real-gallery">
       <div className="real-gallery__main">
         <img src={images[index]} alt={`${label} — angle ${index + 1}`} className="real-gallery__image" />
+        {note && <p className="real-gallery__note">{note}</p>}
         {images.length > 1 && (
           <>
             <button type="button" className="real-gallery__arrow real-gallery__arrow--prev" onClick={prev} aria-label="Previous angle">

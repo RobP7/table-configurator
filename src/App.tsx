@@ -9,7 +9,12 @@ function App() {
   const hasProduct = useConfigStore((s) => !!s.topRangeId);
   const topRangeId = useConfigStore((s) => s.topRangeId);
   const topRange = TOP_RANGES.find((r) => r.id === topRangeId);
-  const { total } = usePrice();
+  const { total, legStyle } = usePrice();
+  // A leg with its own photos shows those; otherwise fall back to the
+  // range's default gallery and say it's illustrative.
+  const legGallery = legStyle ? topRange?.legGalleries?.[legStyle.id] : undefined;
+  const gallery = legGallery ?? topRange?.photoGallery;
+  const illustrative = !!topRange?.legGalleries && !legGallery && !!legStyle;
 
   return (
     <div className="app">
@@ -17,8 +22,17 @@ function App() {
         {hasProduct ? (
           <>
             <div className="app__canvas">
-              {topRange?.photoGallery ? (
-                <RealPhotoGallery images={topRange.photoGallery} label={topRange.label} />
+              {topRange && gallery ? (
+                <RealPhotoGallery
+                  key={gallery.join("|")}
+                  images={gallery}
+                  label={topRange.label}
+                  note={
+                    illustrative
+                      ? `Photos shown are for illustration — photos with the ${legStyle!.label} are coming soon.`
+                      : undefined
+                  }
+                />
               ) : (
                 <>
                   <Scene />

@@ -8,6 +8,7 @@ import {
   TOP_RANGES,
   type LegStyleOption,
   type ShapeId,
+  type SizeOption,
   type TopColorOption,
   type TopRangeOption,
 } from "../config/options";
@@ -16,17 +17,39 @@ function firstForShape<T extends { shapeId: ShapeId }>(list: T[], shapeId: Shape
   return list.find((item) => item.shapeId === shapeId);
 }
 
-function legFits(leg: LegStyleOption, shapeId: ShapeId, sizeId: string): boolean {
+// Sizes/legs can be scoped to specific ranges (compatibleRanges) now that a
+// shape can have more than one range. A null range (shape with no product
+// yet) only matches entries that aren't range-scoped.
+function sizeFits(size: SizeOption, shapeId: ShapeId, rangeId: string | null): boolean {
+  if (size.shapeId !== shapeId) return false;
+  if (size.compatibleRanges && (!rangeId || !size.compatibleRanges.includes(rangeId))) return false;
+  return true;
+}
+
+function firstFittingSize(shapeId: ShapeId, rangeId: string | null): SizeOption {
+  return (
+    SIZES.find((s) => sizeFits(s, shapeId, rangeId)) ?? SIZES.find((s) => s.shapeId === shapeId)!
+  );
+}
+
+function legFits(
+  leg: LegStyleOption,
+  shapeId: ShapeId,
+  sizeId: string,
+  rangeId: string | null
+): boolean {
   if (!leg.compatibleShapes.includes(shapeId)) return false;
+  if (leg.compatibleRanges && (!rangeId || !leg.compatibleRanges.includes(rangeId))) return false;
   if (leg.compatibleSizes && !leg.compatibleSizes.includes(sizeId)) return false;
   return true;
 }
 
-function firstFittingLeg(shapeId: ShapeId, sizeId: string): LegStyleOption | undefined {
-  return (
-    LEG_STYLES.find((l) => legFits(l, shapeId, sizeId)) ??
-    LEG_STYLES.find((l) => l.compatibleShapes.includes(shapeId))
-  );
+function firstFittingLeg(
+  shapeId: ShapeId,
+  sizeId: string,
+  rangeId: string | null
+): LegStyleOption | undefined {
+  return LEG_STYLES.find((l) => legFits(l, shapeId, sizeId, rangeId));
 }
 
 function legFinishFits(leg: LegStyleOption, finishId: string | null): boolean {
@@ -60,8 +83,8 @@ export interface LegChangeNotice {
 interface ConfigState {
   shapeId: ShapeId;
   sizeId: string;
-  // Null when the current shape has no product range yet — rectangular and
-  // oval start out this way until a real range is added for them.
+  // Null when the current shape has no product range yet — oval starts out
+  // this way until a real range is added for it.
   topRangeId: string | null;
   topColorId: string | null;
   legStyleId: string | null;
@@ -76,13 +99,66 @@ interface ConfigState {
   dismissLegChangeNotice: () => void;
 }
 
-// Round is the only shape with a real range right now (The Mynd), so it's
-// the default on load rather than SHAPES[0] (rectangular, which is empty).
+// Round is the default on load (The Mynd was the first real product).
 const initialShape: ShapeId = "round";
-const initialSizeId = firstForShape(SIZES, initialShape)!.id;
 const initialTopRange = firstForShape(TOP_RANGES, initialShape);
+const initialSizeId = firstFittingSize(initialShape, initialTopRange?.id ?? null).id;
 const initialTopColor = initialTopRange ? firstFittingColor(initialTopRange) : undefined;
-const initialLegStyle = firstFittingLeg(initialShape, initialSizeId);
+const initialLegStyle = firstFittingLeg(initialShape, initialSizeId, initialTopRange?.id ?? null);
+
+// Re-validates size/colour/leg/leg finish after the shape or range changes,
+// keeping whatever still fits and otherwise falling back to the first fit.
+function reconcile(
+  state: {
+    sizeId: string;
+    topColorId: string | null;
+    legStyleId: string | null;
+    legFinishId: string | null;
+  },
+  shapeId: ShapeId,
+  range: TopRangeOption | undefined,
+  reasonLabel: string,
+  // When the range itself was switched, start on that range's own first leg
+  // rather than carrying over a leg that merely also fits (e.g. the Caradoc's
+  // triple X-base is allowed on the Haughmond but isn't its default).
+  resetLeg = false
+) {
+  const rangeId = range?.id ?? null;
+  const currentSize = SIZES.find((s) => s.id === state.sizeId);
+  const sizeId =
+    currentSize && sizeFits(currentSize, shapeId, rangeId)
+      ? state.sizeId
+      : firstFittingSize(shapeId, rangeId).id;
+
+  const currentColor = TOP_COLORS.find((c) => c.id === state.topColorId);
+  const topColorId = range
+    ? currentColor && colorFits(currentColor, range.id)
+      ? state.topColorId
+      : (firstFittingColor(range)?.id ?? null)
+    : null;
+
+  const currentLeg = LEG_STYLES.find((l) => l.id === state.legStyleId);
+  const legStillFits = currentLeg ? legFits(currentLeg, shapeId, sizeId, rangeId) : false;
+  const newLegStyle =
+    legStillFits && !resetLeg ? currentLeg : firstFittingLeg(shapeId, sizeId, rangeId);
+  const legFinishId = newLegStyle
+    ? legFinishFits(newLegStyle, state.legFinishId)
+      ? state.legFinishId
+      : firstFittingFinish(newLegStyle)
+    : null;
+
+  return {
+    sizeId,
+    topRangeId: rangeId,
+    topColorId,
+    legStyleId: newLegStyle?.id ?? null,
+    legFinishId,
+    legChangeNotice:
+      currentLeg && newLegStyle && !legStillFits
+        ? { fromLabel: currentLeg.label, toLabel: newLegStyle.label, reasonLabel }
+        : null,
+  };
+}
 
 export const useConfigStore = create<ConfigState>((set) => ({
   shapeId: initialShape,
@@ -95,51 +171,27 @@ export const useConfigStore = create<ConfigState>((set) => ({
 
   setShape: (id) =>
     set((state) => {
-      const size = SIZES.find((s) => s.id === state.sizeId)!;
       const shape = SHAPES.find((s) => s.id === id)!;
-      const currentLeg = LEG_STYLES.find((l) => l.id === state.legStyleId);
-      const currentColor = TOP_COLORS.find((c) => c.id === state.topColorId);
-
-      const sizeId = size.shapeId === id ? state.sizeId : firstForShape(SIZES, id)!.id;
-
       const newTopRange = firstForShape(TOP_RANGES, id);
-      const topColorId = newTopRange
-        ? (currentColor && colorFits(currentColor, newTopRange.id)
-            ? state.topColorId
-            : firstFittingColor(newTopRange)?.id ?? null)
-        : null;
-
-      const legStillFits = currentLeg ? legFits(currentLeg, id, sizeId) : false;
-      const newLegStyle = legStillFits ? currentLeg : firstFittingLeg(id, sizeId);
-      const legFinishId = newLegStyle
-        ? (legFinishFits(newLegStyle, state.legFinishId) ? state.legFinishId : firstFittingFinish(newLegStyle))
-        : null;
-
       return {
         shapeId: id,
-        sizeId,
-        topRangeId: newTopRange?.id ?? null,
-        topColorId,
-        legStyleId: newLegStyle?.id ?? null,
-        legFinishId,
-        legChangeNotice:
-          currentLeg && newLegStyle && !legStillFits
-            ? {
-                fromLabel: currentLeg.label,
-                toLabel: newLegStyle.label,
-                reasonLabel: `a ${shape.label} top`,
-              }
-            : null,
+        ...reconcile(state, id, newTopRange, `a ${shape.label} top`),
       };
     }),
 
   setSize: (id) =>
     set((state) => {
       const currentLeg = LEG_STYLES.find((l) => l.id === state.legStyleId);
-      const legStillFits = currentLeg ? legFits(currentLeg, state.shapeId, id) : false;
-      const newLegStyle = legStillFits ? currentLeg : firstFittingLeg(state.shapeId, id);
+      const legStillFits = currentLeg
+        ? legFits(currentLeg, state.shapeId, id, state.topRangeId)
+        : false;
+      const newLegStyle = legStillFits
+        ? currentLeg
+        : firstFittingLeg(state.shapeId, id, state.topRangeId);
       const legFinishId = newLegStyle
-        ? (legFinishFits(newLegStyle, state.legFinishId) ? state.legFinishId : firstFittingFinish(newLegStyle))
+        ? legFinishFits(newLegStyle, state.legFinishId)
+          ? state.legFinishId
+          : firstFittingFinish(newLegStyle)
         : null;
       const size = SIZES.find((s) => s.id === id)!;
 
@@ -149,11 +201,7 @@ export const useConfigStore = create<ConfigState>((set) => ({
         legFinishId,
         legChangeNotice:
           currentLeg && newLegStyle && !legStillFits
-            ? {
-                fromLabel: currentLeg.label,
-                toLabel: newLegStyle.label,
-                reasonLabel: size.label,
-              }
+            ? { fromLabel: currentLeg.label, toLabel: newLegStyle.label, reasonLabel: size.label }
             : null,
       };
     }),
@@ -161,11 +209,7 @@ export const useConfigStore = create<ConfigState>((set) => ({
   setTopRange: (id) =>
     set((state) => {
       const newRange = TOP_RANGES.find((r) => r.id === id)!;
-      const currentColor = TOP_COLORS.find((c) => c.id === state.topColorId);
-      const topColorId = currentColor && colorFits(currentColor, id)
-        ? state.topColorId
-        : firstFittingColor(newRange)?.id ?? null;
-      return { topRangeId: id, topColorId };
+      return reconcile(state, state.shapeId, newRange, newRange.label, true);
     }),
 
   setTopColor: (id) => set({ topColorId: id }),

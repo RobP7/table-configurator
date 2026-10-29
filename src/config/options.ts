@@ -55,6 +55,10 @@ export interface TopRangeOption {
   // product closely enough — the photos are the source of truth here, not
   // an approximation of them.
   photoGallery?: string[];
+  // Per-leg-style galleries (keyed by LEG_STYLES id), used instead of
+  // photoGallery when the selected leg has its own real photos. A leg with
+  // no entry falls back to photoGallery with an "illustrative" note.
+  legGalleries?: Record<string, string[]>;
   // Shown under the Size step when this range's catalog sizes have a
   // largest-available cap but bigger bespoke orders are still possible.
   bespokeSizeNote?: string;
@@ -82,6 +86,9 @@ export interface LegStyleOption {
   // Omitted means compatible with every size of the compatible shape(s) —
   // used for legs whose source spec didn't give an exact supported span.
   compatibleSizes?: string[];
+  // If set, restricts this leg to only these TopRangeOption ids. Omitted
+  // means it fits every range of its compatible shape(s).
+  compatibleRanges?: string[];
   // If set, restricts the Leg Finish step to only these LEG_FINISHES ids
   // (e.g. a pedestal that only comes in black/white, not the full steel
   // palette). Omitted means every finish matching this leg's material.
@@ -102,6 +109,7 @@ export interface LegFinishOption {
   roughness: number;
   metalness: number;
   priceModifier: number; // placeholder — replace with real price list
+  image?: string; // swatch photo — shown as a compact swatch grid when set
 }
 
 export interface ShapeOption {
@@ -146,6 +154,19 @@ export const SIZES: SizeOption[] = [
   { id: "caradoc-240x100", label: "240 x 100 cm", shapeId: "rectangular", length: 240, width: 100, priceModifier: 2433, compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-260x100", label: "260 x 100 cm", shapeId: "rectangular", length: 260, width: 100, priceModifier: 2717, compatibleRanges: ["the-caradoc"] },
   { id: "caradoc-280x100", label: "280 x 100 cm", shapeId: "rectangular", length: 280, width: 100, priceModifier: 3000, compatibleRanges: ["the-caradoc"] },
+
+  // The Haughmond — 160cm to 300cm. Rectangular basePrice is £899, so the
+  // modifiers give the real price list: £2,499 (160cm) up to £3,985 (300cm).
+  // Width isn't specified for this range; 100 is only used if a 3D render
+  // is ever shown (the Haughmond uses real photos).
+  { id: "haughmond-160", label: "160cm", shapeId: "rectangular", length: 160, width: 100, priceModifier: 1600, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-180", label: "180cm", shapeId: "rectangular", length: 180, width: 100, priceModifier: 1796, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-200", label: "200cm", shapeId: "rectangular", length: 200, width: 100, priceModifier: 1996, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-220", label: "220cm", shapeId: "rectangular", length: 220, width: 100, priceModifier: 2200, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-240", label: "240cm", shapeId: "rectangular", length: 240, width: 100, priceModifier: 2490, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-260", label: "260cm", shapeId: "rectangular", length: 260, width: 100, priceModifier: 2680, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-280", label: "280cm", shapeId: "rectangular", length: 280, width: 100, priceModifier: 2876, compatibleRanges: ["the-haughmond"] },
+  { id: "haughmond-300", label: "300cm", shapeId: "rectangular", length: 300, width: 100, priceModifier: 3086, compatibleRanges: ["the-haughmond"] },
 
   // Oval
   { id: "oval-130x70", label: "130 x 70 cm", shapeId: "oval", length: 130, width: 70, priceModifier: 0 },
@@ -198,6 +219,31 @@ export const TOP_RANGES: TopRangeOption[] = [
       "/caradoc-real/angle-6.jpg",
     ],
   },
+  {
+    id: "the-haughmond",
+    label: "The Haughmond",
+    shapeId: "rectangular",
+    description: "Thick rustic plank dining table on wooden trestle or steel U-frame legs",
+    edgeStyle: "straight",
+    image: "/tops/the-haughmond.jpg",
+    // Shown when the selected leg has no photos of its own (e.g. the
+    // triple X-base) — with an "illustrative" note.
+    photoGallery: [
+      "/haughmond-real/metal-1.jpg",
+      "/haughmond-real/metal-2.jpg",
+      "/haughmond-real/metal-3.jpg",
+      "/haughmond-real/metal-4.jpg",
+    ],
+    legGalleries: {
+      "haughmond-trestle": ["/haughmond-real/trestle-1.jpg"],
+      "haughmond-metal-u": [
+        "/haughmond-real/metal-1.jpg",
+        "/haughmond-real/metal-2.jpg",
+        "/haughmond-real/metal-3.jpg",
+        "/haughmond-real/metal-4.jpg",
+      ],
+    },
+  },
 ];
 
 // Colors are a shared palette — compatibleRanges scopes each one to the
@@ -205,46 +251,46 @@ export const TOP_RANGES: TopRangeOption[] = [
 // Rubio palette (add its id to the relevant entries) or bring its own.
 export const TOP_COLORS: TopColorOption[] = [
   // --- The Mynd \u2014 40 Rubio oil finish colors ---
-  { id: "mynd-pure", label: "Pure", color: "#d9a874", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-pure.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-natural", label: "Natural", color: "#deb990", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-natural.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-charcoal", label: "Charcoal", color: "#4d4036", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-charcoal.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-white-5", label: "White 5%", color: "#dfbc99", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-white-5.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-chocolate", label: "Chocolate", color: "#6a4838", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-chocolate.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-dunes", label: "Dunes", color: "#cb9e66", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-dunes.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-shell-grey", label: "Shell Grey", color: "#876a4d", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-shell-grey.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-macchiato", label: "Macchiato", color: "#c49a69", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-macchiato.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-affogato", label: "Affogato", color: "#8d673f", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-affogato.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-almond", label: "Almond", color: "#b57743", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-almond.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-arabica", label: "Arabica", color: "#8a5035", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-arabica.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-ash-grey", label: "Ash Grey", color: "#765c45", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-ash-grey.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-black", label: "Black", color: "#5f4d3c", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-black.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-bourbon", label: "Bourbon", color: "#d09e6c", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-bourbon.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-castle-brown", label: "Castle Brown", color: "#ae8158", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-castle-brown.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-cortado", label: "Cortado", color: "#855a39", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-cortado.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-cocoa", label: "Cocoa", color: "#7d5334", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-cocoa.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-cotton-white", label: "Cotton White", color: "#dfc0a3", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-cotton-white.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-dark-oak", label: "Dark Oak", color: "#9e6e3b", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-dark-oak.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-dark-roast", label: "Dark Roast", color: "#57423a", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-dark-roast.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-dulce", label: "Dulce", color: "#c5965c", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-dulce.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-fern", label: "Fern", color: "#465045", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-fern.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-golden-hour", label: "Golden Hour", color: "#b97940", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-golden-hour.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-hazelnut", label: "Hazelnut", color: "#af7d47", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-hazelnut.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-honey", label: "Honey", color: "#bd8345", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-honey.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-light-roast", label: "Light Roast", color: "#bf8f66", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-light-roast.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-linen", label: "Linen", color: "#c19d7d", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-linen.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-midnight-sky", label: "Midnight Sky", color: "#416474", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-midnight-sky.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-mist", label: "Mist", color: "#cea476", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-mist.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-mist-5", label: "Mist 5%", color: "#cd9f75", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-mist-5.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-mocha", label: "Mocha", color: "#be9466", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-mocha.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-oyster", label: "Oyster", color: "#b78d66", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-oyster.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-red-velvet", label: "Red Velvet", color: "#893e35", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-red-velvet.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-smoke", label: "Smoke", color: "#d9b289", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-smoke.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-smoke-5", label: "Smoke 5%", color: "#d2a97f", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-smoke-5.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-super-white", label: "Super White", color: "#debd9b", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-super-white.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-vanilla", label: "Vanilla", color: "#d1a978", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-vanilla.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-vienna", label: "Vienna", color: "#b98661", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-vienna.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-walnut", label: "Walnut", color: "#b58c54", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-walnut.jpg", compatibleRanges: ["the-mynd"] },
-  { id: "mynd-white", label: "White", color: "#e3c6ad", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-white.jpg", compatibleRanges: ["the-mynd"] },
+  { id: "mynd-pure", label: "Pure", color: "#d9a874", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-pure.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-natural", label: "Natural", color: "#deb990", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-natural.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-charcoal", label: "Charcoal", color: "#4d4036", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-charcoal.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-white-5", label: "White 5%", color: "#dfbc99", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-white-5.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-chocolate", label: "Chocolate", color: "#6a4838", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-chocolate.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-dunes", label: "Dunes", color: "#cb9e66", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-dunes.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-shell-grey", label: "Shell Grey", color: "#876a4d", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-shell-grey.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-macchiato", label: "Macchiato", color: "#c49a69", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-macchiato.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-affogato", label: "Affogato", color: "#8d673f", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-affogato.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-almond", label: "Almond", color: "#b57743", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-almond.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-arabica", label: "Arabica", color: "#8a5035", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-arabica.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-ash-grey", label: "Ash Grey", color: "#765c45", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-ash-grey.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-black", label: "Black", color: "#5f4d3c", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-black.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-bourbon", label: "Bourbon", color: "#d09e6c", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-bourbon.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-castle-brown", label: "Castle Brown", color: "#ae8158", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-castle-brown.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-cortado", label: "Cortado", color: "#855a39", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-cortado.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-cocoa", label: "Cocoa", color: "#7d5334", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-cocoa.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-cotton-white", label: "Cotton White", color: "#dfc0a3", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-cotton-white.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-dark-oak", label: "Dark Oak", color: "#9e6e3b", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-dark-oak.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-dark-roast", label: "Dark Roast", color: "#57423a", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-dark-roast.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-dulce", label: "Dulce", color: "#c5965c", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-dulce.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-fern", label: "Fern", color: "#465045", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-fern.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-golden-hour", label: "Golden Hour", color: "#b97940", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-golden-hour.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-hazelnut", label: "Hazelnut", color: "#af7d47", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-hazelnut.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-honey", label: "Honey", color: "#bd8345", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-honey.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-light-roast", label: "Light Roast", color: "#bf8f66", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-light-roast.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-linen", label: "Linen", color: "#c19d7d", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-linen.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-midnight-sky", label: "Midnight Sky", color: "#416474", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-midnight-sky.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-mist", label: "Mist", color: "#cea476", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-mist.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-mist-5", label: "Mist 5%", color: "#cd9f75", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-mist-5.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-mocha", label: "Mocha", color: "#be9466", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-mocha.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-oyster", label: "Oyster", color: "#b78d66", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-oyster.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-red-velvet", label: "Red Velvet", color: "#893e35", roughness: 0.6, metalness: 0, priceModifier: 0, image: "/tops/finish-red-velvet.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-smoke", label: "Smoke", color: "#d9b289", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-smoke.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-smoke-5", label: "Smoke 5%", color: "#d2a97f", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-smoke-5.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-super-white", label: "Super White", color: "#debd9b", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-super-white.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-vanilla", label: "Vanilla", color: "#d1a978", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-vanilla.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-vienna", label: "Vienna", color: "#b98661", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-vienna.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-walnut", label: "Walnut", color: "#b58c54", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-walnut.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
+  { id: "mynd-white", label: "White", color: "#e3c6ad", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/finish-white.jpg", compatibleRanges: ["the-mynd", "the-haughmond"] },
 
   // --- The Caradoc — 40 Rubio Monocoat Oil Plus 2C finish colors, cropped
   // and color-sampled from the real "Knot & Grain Dining" reference sheets ---
@@ -290,6 +336,21 @@ export const TOP_COLORS: TopColorOption[] = [
   { id: "caradoc-midnight-sky", label: "Midnight Sky", color: "#435664", roughness: 0.62, metalness: 0, priceModifier: 0, image: "/tops/caradoc-finish-midnight-sky.jpg", compatibleRanges: ["the-caradoc"] },
 ];
 
+// The Haughmond's wooden trestle leg comes in the same Rubio palette as
+// the top (reusing the Mynd's original swatch photos).
+const WOOD_LEG_FINISHES: LegFinishOption[] = TOP_COLORS.filter((c) => c.id.startsWith("mynd-")).map(
+  (c) => ({
+    id: `wood-leg-${c.id.slice("mynd-".length)}`,
+    label: c.label,
+    material: "oak" as const,
+    color: c.color,
+    roughness: c.roughness,
+    metalness: c.metalness,
+    priceModifier: 0,
+    image: c.image,
+  })
+);
+
 export const LEG_STYLES: LegStyleOption[] = [
   {
     id: "mynd-pedestal",
@@ -302,12 +363,37 @@ export const LEG_STYLES: LegStyleOption[] = [
     priceModifier: 0,
   },
   {
+    id: "haughmond-trestle",
+    label: "Wooden Trestle",
+    description: "Turned wooden trestle legs, any finish colour",
+    material: "oak",
+    renderStyle: "trestle",
+    compatibleShapes: ["rectangular"],
+    compatibleRanges: ["the-haughmond"],
+    compatibleFinishes: WOOD_LEG_FINISHES.map((f) => f.id),
+    priceModifier: 0,
+    image: "/legs/haughmond-trestle.jpg",
+  },
+  {
+    id: "haughmond-metal-u",
+    label: "Steel U-Frame",
+    description: "Black steel U-frame legs",
+    material: "steel",
+    renderStyle: "uframe",
+    compatibleShapes: ["rectangular"],
+    compatibleRanges: ["the-haughmond"],
+    compatibleFinishes: ["steel-black"],
+    priceModifier: 0,
+    image: "/legs/haughmond-metal-u.jpg",
+  },
+  {
     id: "caradoc-triple-x",
     label: "Triple X-Base",
     description: "Three crossed steel X-legs on a shared base plate",
     material: "steel",
     renderStyle: "tripleX",
     compatibleShapes: ["rectangular"],
+    compatibleRanges: ["the-caradoc", "the-haughmond"],
     compatibleFinishes: ["steel-bronze-patina"],
     priceModifier: 0,
     image: "/legs/caradoc-triple-x.jpg",
@@ -370,6 +456,7 @@ export const LEG_FINISHES: LegFinishOption[] = [
     metalness: 0,
     priceModifier: 40,
   },
+  ...WOOD_LEG_FINISHES,
 ];
 
 export const DEFAULT_TABLE_HEIGHT = 75; // cm

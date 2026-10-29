@@ -85,6 +85,7 @@ export function ConfiguratorPanel() {
   const legStylesForSelection = LEG_STYLES.filter(
     (l) =>
       l.compatibleShapes.includes(shapeId) &&
+      (!l.compatibleRanges || (!!topRange && l.compatibleRanges.includes(topRange.id))) &&
       (!l.compatibleSizes || l.compatibleSizes.includes(sizeId))
   );
   const legFinishesForMaterial = legStyle
@@ -227,17 +228,32 @@ export function ConfiguratorPanel() {
             </StepSection>
 
             <StepSection index={6} title="Leg Finish" summary={legFinish.label}>
-              <div className="option-grid">
-                {legFinishesForMaterial.map((l) => (
-                  <OptionCard
-                    key={l.id}
-                    label={l.label}
-                    swatchColor={l.color}
-                    selected={l.id === legFinishId}
-                    onSelect={() => setLegFinish(l.id)}
-                  />
-                ))}
-              </div>
+              {legFinishesForMaterial.length > 8 ? (
+                <div className="swatch-grid">
+                  {legFinishesForMaterial.map((l) => (
+                    <SwatchOption
+                      key={l.id}
+                      label={l.label}
+                      color={l.color}
+                      image={l.image}
+                      selected={l.id === legFinishId}
+                      onSelect={() => setLegFinish(l.id)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="option-grid">
+                  {legFinishesForMaterial.map((l) => (
+                    <OptionCard
+                      key={l.id}
+                      label={l.label}
+                      swatchColor={l.color}
+                      selected={l.id === legFinishId}
+                      onSelect={() => setLegFinish(l.id)}
+                    />
+                  ))}
+                </div>
+              )}
             </StepSection>
           </>
         ) : (
