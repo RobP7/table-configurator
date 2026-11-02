@@ -59,6 +59,9 @@ export interface TopRangeOption {
   // photoGallery when the selected leg has its own real photos. A leg with
   // no entry falls back to photoGallery with an "illustrative" note.
   legGalleries?: Record<string, string[]>;
+  // The leg this range opens on (and returns to when the range is selected),
+  // when that isn't simply the first leg that fits.
+  defaultLegId?: string;
   // Shown under the Size step when this range's catalog sizes have a
   // largest-available cap but bigger bespoke orders are still possible.
   bespokeSizeNote?: string;
@@ -331,9 +334,12 @@ export const TOP_RANGES: TopRangeOption[] = [
     id: "the-ragleth",
     label: "The Ragleth",
     shapeId: "rectangular",
-    description: "Live-edge oak dining table on a solid oak star base",
+    description: "Live-edge oak dining table on a solid oak spider base",
     edgeStyle: "tree",
     image: "/tops/the-ragleth.jpg",
+    // The base in the photos is the Light Spider (Oak) frame, offered here
+    // in both its sizes — open on the 140.
+    defaultLegId: "light-spider-oak-140",
     photoGallery: [
       "/ragleth-real/angle-1.jpg",
       "/ragleth-real/angle-2.jpg",
@@ -342,7 +348,14 @@ export const TOP_RANGES: TopRangeOption[] = [
       "/ragleth-real/angle-5.jpg",
     ],
     legGalleries: {
-      "ragleth-oak-star": [
+      "light-spider-oak-140": [
+        "/ragleth-real/angle-1.jpg",
+        "/ragleth-real/angle-2.jpg",
+        "/ragleth-real/angle-3.jpg",
+        "/ragleth-real/angle-4.jpg",
+        "/ragleth-real/angle-5.jpg",
+      ],
+      "light-spider-oak-180": [
         "/ragleth-real/angle-1.jpg",
         "/ragleth-real/angle-2.jpg",
         "/ragleth-real/angle-3.jpg",
@@ -464,7 +477,7 @@ const STEEL_LEG_FINISH_IDS = ["steel-black", "steel-white"];
 export const LEG_STYLES: LegStyleOption[] = [
   {
     id: "mynd-pedestal",
-    label: "The Mynd Pedestal",
+    label: "The Tulip",
     description: "Central pedestal base, \u00d8110-120cm tops",
     material: "steel",
     renderStyle: "pedestal",
@@ -507,18 +520,6 @@ export const LEG_STYLES: LegStyleOption[] = [
     compatibleFinishes: ["steel-black"],
     priceModifier: 0,
     image: "/legs/wrekin-star.jpg",
-  },
-  {
-    id: "ragleth-oak-star",
-    label: "Oak Star Base",
-    description: "Solid oak star base, any finish colour",
-    material: "oak",
-    renderStyle: "crossbase",
-    compatibleShapes: ["rectangular"],
-    compatibleRanges: ["the-ragleth"],
-    compatibleFinishes: WOOD_LEG_FINISHES.map((f) => f.id),
-    priceModifier: 0,
-    image: "/legs/ragleth-oak-star.jpg",
   },
   {
     id: "lawley-star",

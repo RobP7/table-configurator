@@ -238,7 +238,7 @@ const STEEL_LEG_FINISH_IDS = ["steel-black", "steel-white"];
 const LEG_STYLES: LegStyleOption[] = [
   {
     id: "mynd-pedestal",
-    label: "The Mynd Pedestal",
+    label: "The Tulip",
     material: "steel",
     compatibleShapes: ["round"],
     compatibleFinishes: ["steel-black", "steel-white"],
@@ -269,15 +269,6 @@ const LEG_STYLES: LegStyleOption[] = [
     compatibleShapes: ["rectangular"],
     compatibleRanges: ["the-wrekin"],
     compatibleFinishes: ["steel-black"],
-    priceModifier: 0,
-  },
-  {
-    id: "ragleth-oak-star",
-    label: "Oak Star Base",
-    material: "oak",
-    compatibleShapes: ["rectangular"],
-    compatibleRanges: ["the-ragleth"],
-    compatibleFinishes: WOOD_LEG_FINISHES.map((f) => f.id),
     priceModifier: 0,
   },
   {

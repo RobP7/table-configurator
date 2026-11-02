@@ -48,6 +48,9 @@ function firstFittingLeg(
   sizeId: string,
   rangeId: string | null
 ): LegStyleOption | undefined {
+  const defaultId = TOP_RANGES.find((r) => r.id === rangeId)?.defaultLegId;
+  const preferred = defaultId ? LEG_STYLES.find((l) => l.id === defaultId) : undefined;
+  if (preferred && legFits(preferred, shapeId, sizeId, rangeId)) return preferred;
   return LEG_STYLES.find((l) => legFits(l, shapeId, sizeId, rangeId));
 }
 
