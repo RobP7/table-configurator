@@ -306,7 +306,7 @@ export async function createLawley(): Promise<TableModel> {
 // =====================================================================================
 export async function createWrekin(): Promise<TableModel> {
   const D = { width: 91, height: 75, topT: 5.1 };
-  const LEG = { w: 7, plateL: 22, plateW: 12, plateT: 0.6, rS: 28.7, hub: 33.9, rLShort: 51.9, rLLong: 72 };
+  const LEG = { w: 7, plateL: 22, plateW: 12, plateT: 0.6, rS: 28.7, hub: 33.9, rLShort: 51.9, rLLong: 72, rLXL: 92 };
   const [tex, endTex, longTex] = await Promise.all([loadTex(`${BASE}/wrekin/top.jpg`, false), loadTex(`${BASE}/wrekin/edge_end.jpg`), loadTex(`${BASE}/wrekin/edge_long.jpg`)]);
   const topMat = wood(tex, 0.72, 0.4), endMat = wood(endTex, 0.72, 0.3), longMat = wood(longTex, 0.72, 0.3);
   const profile = (T: number): Pt[] => [[0.22, 0], [0, 0.22], [0, T - 0.5], [0.08, T - 0.2], [0.32, T]];
@@ -353,7 +353,8 @@ export async function createWrekin(): Promise<TableModel> {
   const screwMat = new THREE.MeshStandardMaterial({ color: 0x3a3836, roughness: 0.4, metalness: 0.7 });
   function buildLeg(L: number): THREE.Group {
     const g = new THREE.Group();
-    const rL = L >= 240 ? LEG.rLLong : LEG.rLShort;
+    // 160–180cm: standard leg · 200–240cm: longer leg · 260–300cm: longest leg
+    const rL = L >= 260 ? LEG.rLXL : L >= 200 ? LEG.rLLong : LEG.rLShort;
     const hu = D.height - D.topT - LEG.plateT, k = (hu - LEG.hub) / LEG.hub;
     const feet: Pt[] = [[rL, 0], [-rL, 0], [0, LEG.rS], [0, -LEG.rS]];
     const plates: Pt[] = [[-rL * k, 0], [rL * k, 0], [0, -LEG.rS * k], [0, LEG.rS * k]];
