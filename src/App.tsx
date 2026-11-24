@@ -1,15 +1,26 @@
 import { Scene } from "./three/Scene";
 import { ConfiguratorPanel } from "./components/ConfiguratorPanel";
 import { RealPhotoGallery } from "./components/RealPhotoGallery";
+import { TableViewer3D } from "./three/tables3d/TableViewer3D";
+import { MODEL_FACTORIES, MODEL_LEGS } from "./three/tables3d/models";
 import { useConfigStore, usePrice } from "./store/useConfigStore";
-import { CURRENCY, TOP_RANGES } from "./config/options";
+import { CURRENCY, LEG_STYLES, TOP_RANGES } from "./config/options";
 import "./App.css";
 
 function App() {
   const hasProduct = useConfigStore((s) => !!s.topRangeId);
   const topRangeId = useConfigStore((s) => s.topRangeId);
   const topRange = TOP_RANGES.find((r) => r.id === topRangeId);
-  const { total, legStyle } = usePrice();
+  const { total, legStyle, size } = usePrice();
+  // Ranges with a real 3D model. Others keep their photo gallery (or the older generic 3D scene).
+  const has3D = !!topRangeId && topRangeId in MODEL_FACTORIES;
+  const modelLegs = (topRangeId && MODEL_LEGS[topRangeId]) || [];
+  const legHasModel = !!legStyle && modelLegs.includes(legStyle.id);
+  const fallbackLeg = LEG_STYLES.find((l) => l.id === modelLegs[0]);
+  const note3D =
+    has3D && legStyle && !legHasModel
+      ? `3D view of the ${legStyle.label} is coming soon — showing the ${fallbackLeg?.label ?? "standard base"}.`
+      : undefined;
   // A leg with its own photos shows those; otherwise fall back to the
   // range's default gallery and say it's illustrative.
   const legGallery = legStyle ? topRange?.legGalleries?.[legStyle.id] : undefined;
@@ -30,7 +41,15 @@ function App() {
         {hasProduct ? (
           <>
             <div className="app__canvas">
-              {topRange && gallery ? (
+              {has3D && topRangeId ? (
+                <TableViewer3D
+                  key={topRangeId}
+                  rangeId={topRangeId}
+                  lengthCm={size.length}
+                  legId={legHasModel ? legStyle!.id : (modelLegs[0] ?? null)}
+                  note={note3D}
+                />
+              ) : topRange && gallery ? (
                 <RealPhotoGallery
                   key={gallery.join("|")}
                   images={gallery}

@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Component, Suspense, type ReactNode } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   ContactShadows,
@@ -8,6 +8,18 @@ import {
   PerspectiveCamera,
 } from "@react-three/drei";
 import { TableModel } from "./TableModel";
+
+// If the lighting map can't be fetched (offline, blocked), carry on without it
+// instead of letting the whole page go blank.
+class SafeEnvironment extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
 
 function Loader() {
   return (
@@ -38,7 +50,9 @@ export function Scene() {
 
       <Suspense fallback={<Loader />}>
         <TableModel />
-        <Environment preset="apartment" />
+        <SafeEnvironment>
+          <Environment preset="apartment" />
+        </SafeEnvironment>
       </Suspense>
 
       <ContactShadows

@@ -14,6 +14,8 @@ import {
   type TopRangeOption,
 } from "../config/options";
 
+const RAGLETH_SPIDERS = ["light-spider-oak-140", "light-spider-oak-180"];
+
 function firstForShape<T extends { shapeId: ShapeId }>(list: T[], shapeId: ShapeId): T | undefined {
   return list.find((item) => item.shapeId === shapeId);
 }
@@ -193,11 +195,19 @@ export const useConfigStore = create<ConfigState>((set) => ({
       const legStillFits = currentLeg
         ? legFits(currentLeg, state.shapeId, id, state.topRangeId)
         : false;
-      const newLegStyle = legStillFits
+      let newLegStyle = legStillFits
         ? currentLeg
         : firstFittingLeg(state.shapeId, id, state.topRangeId);
+      let sizeFollowed = false;
+      // The Ragleth's oak spider comes in two sizes: the 140 suits 160–220cm tops and the
+      // 180 suits 240–300cm, so follow the size (customers can still pick the other one).
+      if (state.topRangeId === "the-ragleth" && newLegStyle && RAGLETH_SPIDERS.includes(newLegStyle.id)) {
+        const len = SIZES.find((s) => s.id === id)?.length ?? 0;
+        const wanted = LEG_STYLES.find((l) => l.id === (len >= 240 ? "light-spider-oak-180" : "light-spider-oak-140"));
+        if (wanted) { newLegStyle = wanted; sizeFollowed = true; }
+      }
       const legFinishId = newLegStyle
-        ? newLegStyle.id === currentLeg?.id && legFinishFits(newLegStyle, state.legFinishId)
+        ? (newLegStyle.id === currentLeg?.id || sizeFollowed) && legFinishFits(newLegStyle, state.legFinishId)
           ? state.legFinishId
           : firstFittingFinish(newLegStyle)
         : null;

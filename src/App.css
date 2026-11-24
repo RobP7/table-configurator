@@ -623,3 +623,51 @@
     border-top: 1px solid var(--border);
   }
 }
+
+/* ---- 3D table viewer (real photographed tables) ---- */
+.viewer3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.viewer3d__host {
+  position: absolute;
+  inset: 0;
+}
+.viewer3d__host canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none;
+}
+.viewer3d__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.viewer3d__presets {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: calc(100% - 32px);
+}
+.viewer3d__preset {
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 12px;
+  border: 1px solid rgba(26, 26, 24, 0.15);
+  background: rgba(250, 248, 244, 0.88);
+  color: #3a3935;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.viewer3d__preset:hover {
+  background: #fff;
+}
