@@ -470,8 +470,15 @@ export async function createRagleth(): Promise<TableModel> {
   const group = new THREE.Group();
   let top: THREE.Group | null = null, leg: THREE.Group | null = null;
   let curL = 200, legId: string | null = null;
-  // the bars' top ends are ~11cm wider than the reach, so on short tops pull the leg in to stay under the edge
-  const reach = () => Math.min(legId === "light-spider-oak-180" ? 90 : legId === "light-spider-oak-140" ? 70 : curL >= 240 ? 90 : 70, curL / 2 - 16);
+  // The bars are shallow (~28°), so their flat top ends reach well past the nominal length. Pull the leg in
+  // until the whole top end sits at least 3cm inside the end of the table.
+  const reach = () => {
+    const hu = D.height - D.topT;
+    let r = legId === "light-spider-oak-180" ? 90 : legId === "light-spider-oak-140" ? 70 : curL >= 240 ? 90 : 70;
+    const reachOut = (x: number) => x + (BAR.wide / 2) * (Math.hypot(2 * x, hu) / hu);
+    while (r > 30 && reachOut(r) > curL / 2 - 3) r -= 0.5;
+    return r;
+  };
   const rebuildLeg = () => { if (leg) { group.remove(leg); disposeGroup(leg); } leg = buildLeg(reach()); group.add(leg); };
   return {
     group,
