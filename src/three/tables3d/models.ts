@@ -266,10 +266,12 @@ export async function createLawley(): Promise<TableModel> {
   }
   const steel = new THREE.MeshStandardMaterial({ color: 0x1e1d1c, roughness: 0.55, metalness: 0.35, side: THREE.DoubleSide, flatShading: true });
   const screwMat = new THREE.MeshStandardMaterial({ color: 0x3a3836, roughness: 0.4, metalness: 0.7 });
-  function buildLeg(): THREE.Group {
+  function buildLeg(L: number): THREE.Group {
     const g = new THREE.Group();
     const hu = D.height - D.topT - LEG.plateT;
-    ([[1, 0, LEG.cLong], [-1, 0, LEG.cLong], [0, 1, LEG.cShort], [0, -1, LEG.cShort]] as number[][]).forEach(([dx, dz, c]) => {
+    // 160–220cm: standard leg. 240–280cm: the long arms reach further along the top for support.
+    const cLong = L >= 240 ? 2.33 : LEG.cLong;
+    ([[1, 0, cLong], [-1, 0, cLong], [0, 1, LEG.cShort], [0, -1, LEG.cShort]] as number[][]).forEach(([dx, dz, c]) => {
       const up = [-dx * c * (hu - LEG.hub), hu, -dz * c * (hu - LEG.hub)], lo = [dx * c * LEG.hub, 0, dz * c * LEG.hub];
       const m = new THREE.Mesh(boxBar(up, lo, LEG.w, LEG.w, 0, hu), steel); m.castShadow = true; m.receiveShadow = true; g.add(m);
       const pl = new THREE.Mesh(new THREE.BoxGeometry((dx ? LEG.plateL : LEG.plateW) * M, LEG.plateT * M, (dx ? LEG.plateW : LEG.plateL) * M), steel);
@@ -284,12 +286,16 @@ export async function createLawley(): Promise<TableModel> {
     return g;
   }
   const group = new THREE.Group();
-  group.add(buildLeg());
-  let top: THREE.Group | null = null;
+  let top: THREE.Group | null = null, leg: THREE.Group | null = null;
   return {
     group,
     home: { az: -30, el: 13 },
-    setLength(L) { if (top) { group.remove(top); disposeGroup(top); } top = buildTop(L, D.width); group.add(top); },
+    setLength(L) {
+      if (leg) { group.remove(leg); disposeGroup(leg); }
+      leg = buildLeg(L); group.add(leg);
+      if (top) { group.remove(top); disposeGroup(top); }
+      top = buildTop(L, D.width); group.add(top);
+    },
     setLeg() { /* the star base is the only Lawley base photographed so far */ },
     dispose() { disposeGroup(group); tex.dispose(); edgeTex.dispose(); },
   };
@@ -464,7 +470,8 @@ export async function createRagleth(): Promise<TableModel> {
   const group = new THREE.Group();
   let top: THREE.Group | null = null, leg: THREE.Group | null = null;
   let curL = 200, legId: string | null = null;
-  const reach = () => (legId === "light-spider-oak-180" ? 90 : legId === "light-spider-oak-140" ? 70 : curL >= 240 ? 90 : 70);
+  // the bars' top ends are ~11cm wider than the reach, so on short tops pull the leg in to stay under the edge
+  const reach = () => Math.min(legId === "light-spider-oak-180" ? 90 : legId === "light-spider-oak-140" ? 70 : curL >= 240 ? 90 : 70, curL / 2 - 16);
   const rebuildLeg = () => { if (leg) { group.remove(leg); disposeGroup(leg); } leg = buildLeg(reach()); group.add(leg); };
   return {
     group,
