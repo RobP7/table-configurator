@@ -266,6 +266,8 @@ export const TOP_RANGES: TopRangeOption[] = [
     description: "Thick rustic plank dining table on wooden trestle or steel U-frame legs",
     edgeStyle: "straight",
     image: "/tops/the-haughmond.jpg",
+    // The real wooden trestle is the main leg (and the one modelled in 3D).
+    defaultLegId: "haughmond-trestle",
     // Shown when the selected leg has no photos of its own (e.g. the
     // triple X-base) — with an "illustrative" note.
     photoGallery: [

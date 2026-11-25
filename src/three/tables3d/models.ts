@@ -2,6 +2,9 @@ import * as THREE from "three";
 import caradocEdges from "./caradocEdges.json";
 import lawleyOutline from "./lawleyOutline.json";
 import raglethEdgesRaw from "./raglethEdges.json";
+import myndProfile from "./myndProfile.json";
+import haughmondLegRows from "./haughmondLegRows.json";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 // The four photographed tables, built as real 3D models. Everything is measured/fitted from the
 // product photos; textures are wrapped from the photos themselves (see public/3d/<range>/).
@@ -13,6 +16,8 @@ export interface TableModel {
   /** Choose the leg (catalogue leg id). Unknown ids keep the range's default leg. */
   setLeg: (legId: string | null) => void;
   home: { az: number; el: number };
+  /** Camera distance (m) that frames the table at this length; the viewer's default is used when absent. */
+  dist?: (lengthCm: number) => number;
   dispose: () => void;
 }
 
@@ -495,16 +500,243 @@ export async function createRagleth(): Promise<TableModel> {
   };
 }
 
-export const MODEL_FACTORIES: Record<string, () => Promise<TableModel>> = {
+// =====================================================================================
+// THE MYND — round oak top on a black Tulip pedestal
+// =====================================================================================
+export async function createMynd(env: THREE.Texture | null): Promise<TableModel> {
+  const TABLE_H = 0.75, TOP_T = 0.037;
+  const [tex, edgeTex] = await Promise.all([loadTex(`${BASE}/mynd/top.jpg`, false), loadTex(`${BASE}/mynd/edge.jpg`, false)]);
+  edgeTex.wrapS = THREE.RepeatWrapping;
+  const group = new THREE.Group();
+
+  // pedestal: lathe of the radius profile fitted to the photo's silhouette
+  const pedTop = TABLE_H - TOP_T;
+  const pts = myndProfile.h.map((h, i) => new THREE.Vector2(myndProfile.r[i] / 100, Math.min(h / 100, pedTop)));
+  pts.unshift(new THREE.Vector2(0, 0));
+  const pedMat = new THREE.MeshStandardMaterial({ color: 0x070707, roughness: 0.5, metalness: 0, side: THREE.DoubleSide });
+  if (env) { pedMat.envMap = env; pedMat.envMapIntensity = 0.1; } // soft reflections off the black powder-coat
+  const pedestal = new THREE.Mesh(new THREE.LatheGeometry(pts, 160), pedMat);
+  pedestal.castShadow = true;
+  const cap = new THREE.Mesh(new THREE.CircleGeometry(pts[pts.length - 1].x, 64), pedMat);
+  cap.rotation.x = -Math.PI / 2;
+  cap.position.y = pedTop;
+  group.add(pedestal, cap);
+
+  const topMat = new THREE.MeshBasicMaterial({ map: tex });
+  const underMat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.7, metalness: 0 });
+  if (env) { underMat.envMap = env; underMat.envMapIntensity = 0.2; }
+  const edgeMat = new THREE.MeshBasicMaterial({ map: edgeTex });
+
+  // soft contact shadow under the pedestal
+  const c2 = document.createElement("canvas");
+  c2.width = c2.height = 256;
+  const g2 = c2.getContext("2d")!;
+  const grad = g2.createRadialGradient(128, 128, 20, 128, 128, 128);
+  grad.addColorStop(0, "rgba(0,0,0,.20)"); grad.addColorStop(0.55, "rgba(0,0,0,.10)"); grad.addColorStop(1, "rgba(0,0,0,0)");
+  g2.fillStyle = grad; g2.fillRect(0, 0, 256, 256);
+  const blobTex = new THREE.CanvasTexture(c2);
+  const blob = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false }));
+  blob.rotation.x = -Math.PI / 2;
+  blob.position.y = 0.001;
+  group.add(blob);
+
+  let top: THREE.Mesh | null = null;
+  return {
+    group,
+    home: { az: 0, el: 16 },
+    dist: (L) => 3.38 * (L / 110),
+    setLength(L) {
+      if (top) { group.remove(top); top.geometry.dispose(); }
+      const r = L / 200;
+      top = new THREE.Mesh(new THREE.CylinderGeometry(r, r, TOP_T, 200), [edgeMat, topMat, underMat]);
+      const g = top.geometry, uvA = g.attributes.uv, grp = g.groups[2];
+      for (let k = grp.start; k < grp.start + grp.count; k++) { const vi = g.index!.getX(k); uvA.setY(vi, 1 - uvA.getY(vi)); }
+      top.position.y = TABLE_H - TOP_T / 2;
+      top.castShadow = true;
+      group.add(top);
+    },
+    setLeg() {},
+    dispose() {
+      disposeGroup(group);
+      tex.dispose(); edgeTex.dispose(); blobTex.dispose();
+      [pedMat, topMat, underMat, edgeMat].forEach((m) => m.dispose());
+    },
+  };
+}
+
+// =====================================================================================
+// THE HAUGHMOND — thick reclaimed-oak slab on wooden trestle legs
+// =====================================================================================
+export async function createHaughmond(): Promise<TableModel> {
+  const D = { width: 90, height: 75, topT: 7.6 };
+  const LEG = { inset: 25.5, footX: 21.7, footZ: 74.4, bearerX: 17.5, bearerZ: 58.5, bearerH: 6 };
+  // Column profile read off the close-up of the leg: [height above the floor (cm), width across the table (cm)]
+  const COL: Pt[] = [
+    [12, 33], [16, 33], [16, 28], [21, 28], [21, 24.6], [25.5, 24.6], [25.5, 28.7], [30.5, 28.7],
+    [30.5, 31], [31.5, 35.5], [33.5, 38.6], [35.5, 36], [37, 32], [37, 29.5], [44, 29.5], [44.6, 28.8],
+    [47, 25], [50, 22.4], [53, 22.8], [56, 26], [58.8, 29.7], [61.4, 30.5]];
+  const legRows = haughmondLegRows as number[][];
+
+  const [tex, longTex, endTex, legTex, closeTex, footTex] = await Promise.all([
+    loadTex(`${BASE}/haughmond/top.jpg`, false), loadTex(`${BASE}/haughmond/edge_long.jpg`, false), loadTex(`${BASE}/haughmond/edge_end.jpg`, false),
+    loadTex(`${BASE}/haughmond/leg.jpg`, false), loadTex(`${BASE}/haughmond/legclose.jpg`, false), loadTex(`${BASE}/haughmond/foot.jpg`, false),
+  ]);
+  [tex, longTex, endTex, legTex].forEach((t) => { t.wrapS = t.wrapT = THREE.RepeatWrapping; });
+  footTex.wrapS = footTex.wrapT = THREE.MirroredRepeatWrapping;
+  const mk = (map: THREE.Texture, rough = 0.85) => wood(map, rough, 0.2);
+  const topMat = mk(tex), longMat = mk(longTex), endMat = mk(endTex), legMat = mk(legTex, 0.8);
+  [topMat, longMat, endMat].forEach((m) => m.color.setScalar(0.88)); // match the photo's slightly deeper brown
+  // the column wears the close-up photo of the leg, warped onto its profile so the edges line up exactly
+  const colMat = new THREE.MeshBasicMaterial({ map: closeTex, side: THREE.DoubleSide });
+  const footMat = mk(footTex, 0.8);
+  footMat.emissive = new THREE.Color(0xffffff); footMat.emissiveMap = footTex; footMat.emissiveIntensity = 0.25;
+
+  function buildTop(L: number): THREE.Mesh {
+    const T = D.topT, W = D.width;
+    const g = new THREE.BoxGeometry(L * M, T * M, W * M);
+    const uv = g.attributes.uv;
+    // BoxGeometry face order: +x, -x, +y, -y, +z, -z — scale the long-side photos along the length
+    for (let gi = 4; gi <= 5; gi++) {
+      const grp = g.groups[gi];
+      for (let k = grp.start; k < grp.start + grp.count; k++) { const vi = g.index!.getX(k); uv.setX(vi, uv.getX(vi) * (L / 184.5)); }
+    }
+    uv.needsUpdate = true;
+    const m = new THREE.Mesh(g, [endMat, endMat, topMat, topMat, longMat, longMat]);
+    m.castShadow = true; m.receiveShadow = true;
+    m.position.y = (D.height - T / 2) * M;
+    return m;
+  }
+
+  function column(): THREE.Mesh {
+    const THICK = 0.87, N = 32, EXP = 5, R0 = 12, R1 = 188, H1 = 61.4, H0 = 12, WS = 0.6;
+    const COLs: Pt[] = COL.filter(([h]) => h >= 13.4).map(([h, w]): Pt => [h, w * WS]);
+    if (COL[0][0] < 13.4) COLs.unshift([13.4, 33 * WS]);
+    const dense: Pt[] = [COLs[0]];
+    for (let k = 1; k < COLs.length; k++) {
+      const [ha, wa] = COLs[k - 1], [hb, wb] = COLs[k];
+      if (Math.abs(hb - ha) < 1e-6) { dense.push([hb, wb]); continue; }
+      const n = Math.max(1, Math.round(Math.abs(hb - ha) / 0.6));
+      for (let i = 1; i <= n; i++) dense.push([ha + ((hb - ha) * i) / n, wa + ((wb - wa) * i) / n]);
+    }
+    const rowAt = (h: number) => Math.min(R1, Math.max(R0, R0 + ((H1 - h) / (H1 - H0)) * (R1 - R0)));
+    const rowInfo = (row: number): Pt => { const [a, b] = legRows[Math.min(299, Math.max(0, Math.round(row)))]; return [(a + b) / 2, b - a]; };
+    const ring = (w: number, t: number): Pt[] => Array.from({ length: N }, (_, i): Pt => {
+      const a = (i / N) * Math.PI * 2, c = Math.cos(a), sn = Math.sin(a);
+      return [Math.sign(c) * Math.pow(Math.abs(c), 2 / EXP) * w / 2, Math.sign(sn) * Math.pow(Math.abs(sn), 2 / EXP) * t / 2];
+    });
+    const uvOf = (h: number, z: number, x: number, w: number): Pt => {
+      const t = w * THICK, row = rowAt(h), [cxp, pw] = rowInfo(row);
+      const coord = Math.abs(x) / (t / 2) > Math.abs(z) / (w / 2) ? x / (t / 2) : z / (w / 2); // side faces reuse the photo too
+      return [(cxp + (coord * 0.9 * pw) / 2) / 300, 1 - row / 300];
+    };
+    const parts: THREE.BufferGeometry[] = [];
+    const runs: Pt[][] = [];
+    let cur: Pt[] = [dense[0]];
+    for (let k = 1; k < dense.length; k++) {
+      if (Math.abs(dense[k][0] - dense[k - 1][0]) < 1e-6) { runs.push(cur); cur = [dense[k]]; } else cur.push(dense[k]);
+    }
+    runs.push(cur);
+    const mkRun = (run: Pt[]) => {
+      const pos: number[] = [], uv: number[] = [], idx: number[] = [];
+      run.forEach(([h, w]) => ring(w, w * THICK).forEach(([z, x]) => { pos.push(x * M, h * M, z * M); uv.push(...uvOf(h, z, x, w)); }));
+      for (let k = 0; k < run.length - 1; k++)
+        for (let i = 0; i < N; i++) {
+          const a = k * N + i, b = k * N + ((i + 1) % N), c = (k + 1) * N + i, d = (k + 1) * N + ((i + 1) % N);
+          idx.push(a, c, b, b, c, d);
+        }
+      return geo(pos, uv, idx).toNonIndexed();
+    };
+    runs.forEach((r) => { if (r.length > 1) parts.push(mkRun(r)); });
+    const flat = (h: number, wA: number, wB: number, up: boolean) => {
+      const A = ring(wA, wA * THICK), B = ring(wB, wB * THICK), pos: number[] = [], uv: number[] = [];
+      const v = (p: Pt, w: number) => { pos.push(p[1] * M, h * M, p[0] * M); uv.push(...uvOf(h, p[0], p[1], w)); };
+      for (let i = 0; i < N; i++) {
+        const j = (i + 1) % N;
+        const tris: [Pt, number][][] = up
+          ? [[[A[i], wA], [B[i], wB], [A[j], wA]], [[A[j], wA], [B[i], wB], [B[j], wB]]]
+          : [[[A[i], wA], [A[j], wA], [B[i], wB]], [[A[j], wA], [B[j], wB], [B[i], wB]]];
+        tris.forEach((t) => t.forEach(([p, w]) => v(p, w)));
+      }
+      return geo(pos, uv, null);
+    };
+    for (let k = 1; k < dense.length; k++)
+      if (Math.abs(dense[k][0] - dense[k - 1][0]) < 1e-6) { const [h, w0] = dense[k - 1], [, w1] = dense[k]; parts.push(flat(h, w0, w1, w1 < w0)); }
+    parts.push(flat(dense[dense.length - 1][0], dense[dense.length - 1][1], 0.01, true));
+    const merged = mergeGeometries(parts)!;
+    parts.forEach((p) => p.dispose());
+    const m = new THREE.Mesh(merged, colMat);
+    m.castShadow = true;
+    return m;
+  }
+
+  function foot(): THREE.BufferGeometry {
+    // fitted foot: low at the ends (2.6 cm), sweeping up to 12.9 cm where it meets the column
+    const hz = LEG.footZ / 2, topPts: Pt[] = [];
+    for (let i = 0; i <= 24; i++) {
+      const z = hz - (i / 24) * 2 * hz, t = Math.abs(z) / hz, e = (1 - Math.cos(Math.PI * Math.pow(Math.max(0, 1 - t), 0.97))) / 2;
+      topPts.push([z, 2.6 + (12.9 - 2.6) * e]);
+    }
+    const pp: Pt[] = [[hz, 0], ...topPts, [-hz, 0]];
+    const shape = new THREE.Shape(pp.map(([z, y]) => new THREE.Vector2(z * M, y * M)));
+    const g = new THREE.ExtrudeGeometry(shape, { depth: LEG.footX * M, bevelEnabled: true, bevelSize: 0.004, bevelThickness: 0.004, bevelSegments: 2, curveSegments: 1 });
+    g.translate(0, 0, -LEG.footX * M / 2);
+    g.rotateY(Math.PI / 2);
+    const uv = g.attributes.uv, p = g.attributes.position;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getZ(i) / 0.75 + 0.5, (p.getX(i) + p.getY(i)) * 3.5);
+    return g;
+  }
+
+  function buildLegs(L: number): THREE.Group {
+    // from 260cm the trestles move in a little so they stay under the longer top
+    const inset = LEG.inset + Math.max(0, L - 240) * 0.3;
+    const g = new THREE.Group(), xl = L / 2 - inset, hu = D.height - D.topT;
+    [-xl, xl].forEach((x) => {
+      const t = new THREE.Group();
+      t.position.x = x * M;
+      const f = new THREE.Mesh(foot(), footMat);
+      const b = new THREE.Mesh(new THREE.BoxGeometry(LEG.bearerX * M, LEG.bearerH * M, LEG.bearerZ * M), legMat);
+      b.position.y = (hu - LEG.bearerH / 2) * M;
+      [f, b].forEach((m) => { m.castShadow = true; m.receiveShadow = true; t.add(m); });
+      t.add(column());
+      g.add(t);
+    });
+    return g;
+  }
+
+  const group = new THREE.Group();
+  let top: THREE.Mesh | null = null, legs: THREE.Group | null = null;
+  return {
+    group,
+    home: { az: -35, el: 14 },
+    setLength(L) {
+      if (top) { group.remove(top); top.geometry.dispose(); }
+      if (legs) { group.remove(legs); disposeGroup(legs); }
+      top = buildTop(L); group.add(top);
+      legs = buildLegs(L); group.add(legs);
+    },
+    setLeg() {},
+    dispose() {
+      disposeGroup(group);
+      [tex, longTex, endTex, legTex, closeTex, footTex].forEach((t) => t.dispose());
+      [topMat, longMat, endMat, legMat, colMat, footMat].forEach((m) => m.dispose());
+    },
+  };
+}
+
+export const MODEL_FACTORIES: Record<string, (env: THREE.Texture | null) => Promise<TableModel>> = {
+  "the-mynd": createMynd,
   "the-caradoc": createCaradoc,
   "the-lawley": createLawley,
   "the-wrekin": createWrekin,
   "the-ragleth": createRagleth,
+  "the-haughmond": createHaughmond,
 };
 /** Catalogue leg ids each 3D model can show (any other leg keeps the default base and shows a note). */
 export const MODEL_LEGS: Record<string, string[]> = {
+  "the-mynd": ["mynd-pedestal"],
   "the-caradoc": ["bold-center-double-x"],
   "the-lawley": ["lawley-star"],
   "the-wrekin": ["wrekin-star"],
   "the-ragleth": ["light-spider-oak-140", "light-spider-oak-180"],
+  "the-haughmond": ["haughmond-trestle"],
 };

@@ -89,7 +89,8 @@ export function TableViewer3D({ rangeId, lengthCm, legId, note }: Props) {
       camera.position.set(d * Math.cos(e) * Math.sin(a), controls.target.y + d * Math.sin(e), d * Math.cos(e) * Math.cos(a));
       controls.update();
     };
-    const baseDist = (L: number) => 3.2 + (L / 100) * 1.2;
+    let modelDist: ((L: number) => number) | undefined;
+    const baseDist = (L: number) => (modelDist ? modelDist(L) : 3.2 + (L / 100) * 1.2);
 
     const resize = () => {
       const w = el.clientWidth || 1, h = el.clientHeight || 1;
@@ -107,10 +108,11 @@ export function TableViewer3D({ rangeId, lengthCm, legId, note }: Props) {
       renderer.render(scene, camera);
     });
 
-    MODEL_FACTORIES[rangeId]?.()
+    MODEL_FACTORIES[rangeId]?.(scene.environment)
       .then((m) => {
         if (disposed) { m.dispose(); return; }
         model = m;
+        modelDist = m.dist;
         scene.add(m.group);
         m.setLeg(latest.current.legId);
         m.setLength(latest.current.lengthCm);
