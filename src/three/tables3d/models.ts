@@ -544,7 +544,7 @@ export async function createMynd(env: THREE.Texture | null): Promise<TableModel>
   return {
     group,
     home: { az: 0, el: 16 },
-    dist: (L) => 3.38 * (L / 110),
+    dist: () => 4.1, // fixed, so a bigger diameter really looks bigger on screen
     setLength(L) {
       if (top) { group.remove(top); top.geometry.dispose(); }
       const r = L / 200;
